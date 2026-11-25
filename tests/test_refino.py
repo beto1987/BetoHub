@@ -5,7 +5,7 @@ import pytest
 from beto_hub.core.database import BancoDados
 from plugins.refino.logica.estimativas import (
     Auditoria, Estimador, Item, Metodo, chave_minerio, detectar_unidade, eh_bruto, formatar_minutos,
-    minerios_de_uex, precos_refinados, refinarias_de_uex,
+    mapa_metodos, minerios_de_uex, precos_refinados, refinarias_de_uex,
 )
 from plugins.refino.logica.pedidos import ANDAMENTO, MIGRACOES, PRONTO, RETIRADO, Pedido, RepositorioPedidos
 
@@ -109,3 +109,14 @@ def test_pedidos_ciclo_de_vida(tmp_path):
     repo.excluir(p1.id)
     assert repo.listar() == []
     banco.fechar()
+
+
+def test_auditoria_com_metodo_em_texto_como_a_uex_envia():
+    # A UEX manda "method" como texto ("dinyx_solventation"), não como id
+    ids = mapa_metodos(METODOS + [Metodo.de_uex({"id": 8, "name": "Ferron Exchange", "code": "FRX"})])
+    base = {"id_terminal": 243, "commodity_name": "Laranite (Raw)", "quantity": 2872, "quantity_yield": 2417,
+            "total_cost": 3985, "total_time": 1826, "yield": -1}
+    assert Auditoria.de_uex({**base, "method": "dinyx_solventation"}, ids).metodo == 1
+    assert Auditoria.de_uex({**base, "method": "FRX"}, ids).metodo == 8
+    assert Auditoria.de_uex({**base, "method": "2"}, ids).metodo == 2
+    assert Auditoria.de_uex({**base, "method": "metodo_que_nao_existe"}, ids) is None

@@ -84,13 +84,40 @@ class Auditoria:
     bonus: float
 
     @classmethod
-    def de_uex(cls, d: dict[str, Any]) -> "Auditoria | None":
+    def de_uex(cls, d: dict[str, Any], ids_metodo: dict[str, int] | None = None) -> "Auditoria | None":
+        """`ids_metodo` (de `mapa_metodos`) traduz o método quando a UEX o manda como texto
+        ("dinyx_solventation") em vez do id. Auditorias de método desconhecido são ignoradas."""
         q, r = _num(d.get("quantity")), _num(d.get("quantity_yield"))
         if not q or q <= 0 or r is None or r < 0:
             return None
-        return cls(int(d.get("id_terminal") or 0), chave_minerio(str(d.get("commodity_name") or "")),
-                   int(d.get("method") or 0), q, r, _num(d.get("total_cost")) or 0.0,
+        metodo = id_metodo(d.get("method"), ids_metodo)
+        if not metodo:
+            return None
+        return cls(int(_num(d.get("id_terminal")) or 0), chave_minerio(str(d.get("commodity_name") or "")),
+                   metodo, q, r, _num(d.get("total_cost")) or 0.0,
                    _num(d.get("total_time")) or 0.0, _num(d.get("yield")) or 0.0)
+
+
+def _chave_metodo(texto: Any) -> str:
+    return re.sub(r"[^a-z0-9]", "", str(texto or "").lower())
+
+
+def mapa_metodos(metodos: Iterable[Metodo]) -> dict[str, int]:
+    """Nome e código de cada método (normalizados) -> id. Ex.: "dinyxsolventation" e "din" -> 2."""
+    saida: dict[str, int] = {}
+    for m in metodos:
+        for texto in (m.nome, m.codigo):
+            if _chave_metodo(texto):
+                saida[_chave_metodo(texto)] = m.id
+    return saida
+
+
+def id_metodo(valor: Any, ids_metodo: dict[str, int] | None = None) -> int:
+    """Id do método a partir do id (número) ou do nome/código em texto. 0 = desconhecido."""
+    numero = _num(valor)
+    if numero is not None:
+        return int(numero)
+    return (ids_metodo or {}).get(_chave_metodo(valor), 0)
 
 
 @dataclass

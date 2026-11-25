@@ -11,7 +11,8 @@ from PySide6.QtWidgets import QApplication
 from beto_hub.core.plugin_base import HubContext
 
 from .logica.estimativas import (
-    Auditoria, Estimador, Item, Metodo, minerios_de_uex, precos_refinados, refinarias_de_uex,
+    Auditoria, Estimador, Item, Metodo, mapa_metodos, minerios_de_uex, precos_refinados,
+    refinarias_de_uex,
 )
 from .logica.pedidos import RETIRADO, Pedido, RepositorioPedidos
 
@@ -74,8 +75,16 @@ class ControladorRefino(QObject):
 
     def _ao_baixar(self, d: dict[str, Any]) -> None:
         self._carregando = False
+        try:
+            self._processar(d)
+        except Exception as erro:  # dados num formato inesperado: avisa em vez de ficar "Carregando…"
+            self.log.exception("Erro ao processar os dados de refino da UEX")
+            self._ao_falhar(erro)
+
+    def _processar(self, d: dict[str, Any]) -> None:
         metodos = sorted((Metodo.de_uex(m) for m in d["metodos"] if m.get("id")), key=lambda m: m.nome)
-        auditorias = [a for a in map(Auditoria.de_uex, d["auditorias"]) if a]
+        ids_metodo = mapa_metodos(metodos)
+        auditorias = [a for a in (Auditoria.de_uex(x, ids_metodo) for x in d["auditorias"]) if a]
         self.refinarias = refinarias_de_uex(d["bonus"])
         self.minerios = minerios_de_uex(d["bonus"]) or minerios_de_uex(
             {"commodity_name": a.get("commodity_name")} for a in d["auditorias"])
