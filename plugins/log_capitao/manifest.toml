@@ -1,0 +1,9 @@
+# Manifesto do módulo Log do Capitão
+id = "log_capitao"
+nome = "Log do Capitão"
+versao = "0.1.0"
+descricao = "Diário de bordo: viagens de comércio realizadas, lucro real e anotações."
+ordem = 90           # última aba
+api_minima = 1
+modulo = "plugin"
+classe = "Plugin"
