@@ -1,0 +1,9 @@
+# Manifesto do módulo Frota
+id = "frota"
+nome = "Frota"
+versao = "0.0.1"
+descricao = "Naves, loadouts e comparação de DPS, escudos e outras estatísticas."
+ordem = 50          # posição da aba (menor = mais à esquerda)
+api_minima = 1       # versão do contrato de plugin exigida
+modulo = "plugin"    # arquivo plugin.py
+classe = "Plugin"    # classe dentro dele
