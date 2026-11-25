@@ -1,0 +1,12 @@
+# Star Citizen Beto Hub — dependências (Python 3.13, Windows)
+PySide6>=6.8      # interface gráfica (6.8+ suporta Python 3.13)
+tomlkit>=0.13     # config.toml preservando comentários
+
+# Mineração (scanner por OCR)
+mss>=9            # captura de tela
+Pillow>=10        # tratamento de imagem
+winocr>=0.0.15    # OCR do próprio Windows (recomendado)
+# pytesseract     # opcional: só se quiser usar o Tesseract no lugar do OCR do Windows
+
+# Desenvolvimento / testes
+pytest>=8

@@ -1,0 +1,197 @@
+/* =====================================================================
+   Star Citizen Beto Hub — tema escuro sci-fi
+   As cores entre chaves duplas (ex.: {{acento}}) são trocadas pelo
+   theme.py, então dá para ajustar a paleta num lugar só.
+   ===================================================================== */
+
+* {
+    font-family: "{{fonte}}";
+    font-size: 10pt;
+    color: {{texto}};
+    outline: none;
+}
+
+QMainWindow, QDialog, QWidget#Fundo {
+    background-color: {{fundo}};
+}
+
+QToolTip {
+    background-color: {{painel2}};
+    color: {{texto}};
+    border: 1px solid {{acento}};
+    padding: 4px 6px;
+}
+
+/* ---------- Cabeçalho ---------- */
+QFrame#Cabecalho {
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 {{painel2}}, stop:0.6 {{fundo}}, stop:1 {{fundo}});
+    border-bottom: 1px solid {{borda}};
+}
+QLabel#CabecalhoSubtitulo {
+    color: {{acento}};
+    font-size: 8pt;
+    letter-spacing: 4px;
+}
+QLabel#CabecalhoTitulo {
+    color: {{texto}};
+    font-size: 18pt;
+    font-weight: 600;
+    letter-spacing: 6px;
+}
+QLabel#CabecalhoVersao { color: {{texto_suave}}; font-size: 8pt; }
+
+/* ---------- Abas ---------- */
+QTabWidget::pane {
+    border: 1px solid {{borda}};
+    border-top: 2px solid {{acento}};
+    background-color: {{painel}};
+    top: -1px;
+}
+QTabBar::tab {
+    background-color: {{fundo}};
+    color: {{texto_suave}};
+    border: 1px solid {{borda}};
+    border-bottom: none;
+    padding: 8px 18px;
+    margin-right: 2px;
+    letter-spacing: 2px;
+    min-width: 90px;
+}
+QTabBar::tab:hover { color: {{texto}}; background-color: {{painel2}}; }
+QTabBar::tab:selected {
+    color: {{acento}};
+    background-color: {{painel}};
+    border-color: {{acento}};
+    font-weight: 600;
+}
+
+/* ---------- Botões ---------- */
+QPushButton, QToolButton {
+    background-color: {{painel2}};
+    border: 1px solid {{borda}};
+    padding: 6px 14px;
+    letter-spacing: 1px;
+}
+QPushButton:hover, QToolButton:hover { border-color: {{acento}}; color: {{acento}}; }
+QPushButton:pressed, QToolButton:pressed { background-color: {{acento_escuro}}; }
+QPushButton:disabled { color: {{texto_suave}}; border-color: {{painel2}}; }
+QPushButton[destaque="true"] {
+    background-color: {{acento_escuro}};
+    border-color: {{acento}};
+    color: {{acento}};
+    font-weight: 600;
+}
+QPushButton[perigo="true"]:hover { border-color: {{perigo}}; color: {{perigo}}; }
+QToolButton#BotaoBarra {
+    background: transparent;
+    border: none;
+    padding: 2px 6px;
+    color: {{texto_suave}};
+}
+QToolButton#BotaoBarra:hover { color: {{perigo}}; }
+
+/* ---------- Campos ---------- */
+QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPlainTextEdit, QTextEdit {
+    background-color: {{fundo}};
+    border: 1px solid {{borda}};
+    padding: 5px 7px;
+    selection-background-color: {{acento_escuro}};
+}
+QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus,
+QPlainTextEdit:focus, QTextEdit:focus { border-color: {{acento}}; }
+QLineEdit[capturando="true"] { border-color: {{alerta}}; color: {{alerta}}; }
+QLineEdit[erro="true"] { border-color: {{perigo}}; }
+QComboBox::drop-down { border: none; width: 20px; }
+QComboBox QAbstractItemView {
+    background-color: {{painel2}};
+    border: 1px solid {{acento}};
+    selection-background-color: {{acento_escuro}};
+}
+
+QCheckBox { spacing: 8px; }
+QCheckBox::indicator {
+    width: 14px; height: 14px;
+    border: 1px solid {{borda}};
+    background-color: {{fundo}};
+}
+QCheckBox::indicator:hover { border-color: {{acento}}; }
+QCheckBox::indicator:checked { background-color: {{acento}}; border-color: {{acento}}; }
+
+QSlider::groove:horizontal { height: 4px; background: {{borda}}; }
+QSlider::sub-page:horizontal { background: {{acento}}; }
+QSlider::handle:horizontal {
+    background: {{texto}};
+    border: 1px solid {{acento}};
+    width: 10px; margin: -6px 0;
+}
+
+/* ---------- Agrupadores, listas, tabelas ---------- */
+QGroupBox {
+    border: 1px solid {{borda}};
+    margin-top: 14px;
+    padding: 10px 8px 8px 8px;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 4px;
+    color: {{acento}};
+    letter-spacing: 2px;
+}
+QListWidget, QTreeView, QTableView {
+    background-color: {{fundo}};
+    alternate-background-color: {{painel}};
+    border: 1px solid {{borda}};
+    gridline-color: {{borda}};
+    selection-background-color: {{acento_escuro}};
+}
+QHeaderView::section {
+    background-color: {{painel2}};
+    color: {{acento}};
+    border: none;
+    border-right: 1px solid {{borda}};
+    border-bottom: 1px solid {{borda}};
+    padding: 5px;
+    letter-spacing: 1px;
+}
+
+QScrollBar:vertical { background: {{fundo}}; width: 10px; margin: 0; }
+QScrollBar:horizontal { background: {{fundo}}; height: 10px; margin: 0; }
+QScrollBar::handle { background: {{borda}}; min-height: 24px; min-width: 24px; }
+QScrollBar::handle:hover { background: {{acento_escuro}}; }
+QScrollBar::add-line, QScrollBar::sub-line { width: 0; height: 0; }
+QScrollBar::add-page, QScrollBar::sub-page { background: none; }
+
+/* ---------- Menus e barra de status ---------- */
+QMenuBar { background-color: {{fundo}}; border-bottom: 1px solid {{borda}}; }
+QMenuBar::item { padding: 4px 10px; background: transparent; }
+QMenuBar::item:selected { color: {{acento}}; background-color: {{painel2}}; }
+QMenu { background-color: {{painel2}}; border: 1px solid {{borda}}; padding: 4px; }
+QMenu::item { padding: 5px 22px 5px 22px; }
+QMenu::item:selected { background-color: {{acento_escuro}}; color: {{acento}}; }
+QMenu::separator { height: 1px; background: {{borda}}; margin: 4px 8px; }
+
+QStatusBar { background-color: {{fundo}}; border-top: 1px solid {{borda}}; color: {{texto_suave}}; }
+QStatusBar QLabel { color: {{texto_suave}}; padding: 0 8px; }
+
+/* ---------- Textos auxiliares ---------- */
+QLabel[papel="ajuda"] { color: {{texto_suave}}; font-size: 9pt; }
+QLabel[papel="titulo"] { color: {{acento}}; font-size: 13pt; letter-spacing: 3px; }
+QLabel[papel="ok"] { color: {{ok}}; }
+QLabel[papel="erro"] { color: {{perigo}}; }
+QLabel[papel="alerta"] { color: {{alerta}}; }
+
+/* ---------- Overlay ---------- */
+QFrame#OverlayMoldura {
+    background-color: rgba(7, 11, 18, 235);
+    border: 1px solid {{acento}};
+}
+QFrame#OverlayBarra {
+    background-color: rgba(18, 29, 43, 240);
+    border-bottom: 1px solid {{borda}};
+}
+QLabel#OverlayTitulo { color: {{acento}}; font-size: 8pt; letter-spacing: 3px; font-weight: 600; }
+QLabel#OverlayAvisoClique { color: {{alerta}}; font-size: 8pt; letter-spacing: 2px; font-weight: 600; padding-right: 6px; }
+QTabWidget#OverlayAbas::pane { border: none; border-top: 1px solid {{acento}}; background: transparent; }
+QTabWidget#OverlayAbas QTabBar::tab { padding: 4px 10px; min-width: 50px; font-size: 8pt; }
