@@ -1,0 +1,35 @@
+{
+  "_info": "Assinaturas de radar (RS) por rocha/deposito. O numero no scan = assinatura base x quantidade. Dados da comunidade (patch 4.7/4.8). Edite aqui se a CIG mudar os valores. cluster_max = tamanho de grupo normalmente visto (acima disso o programa marca como 'pouco provavel').",
+  "signatures": [
+    {"name": "Quantainium",   "base": 3170, "category": "Nave", "rarity": "Lendario", "cluster_max": 2, "secondary": "Beryl (10-20%)", "note": "Instavel - cuidado, explode"},
+    {"name": "Stileron",      "base": 3185, "category": "Nave", "rarity": "Lendario", "cluster_max": 2, "secondary": "Taranite (10-20%)"},
+    {"name": "Savrilium",     "base": 3200, "category": "Nave", "rarity": "Lendario", "cluster_max": 2, "secondary": "Gold (10-20%)"},
+    {"name": "Ouratite",      "base": 3370, "category": "Nave", "rarity": "Epico",    "cluster_max": 3, "secondary": "Agricium (10-20%)"},
+    {"name": "Riccite",       "base": 3385, "category": "Nave", "rarity": "Epico",    "cluster_max": 3, "secondary": "Laranite (10-20%)"},
+    {"name": "Lindinium",     "base": 3400, "category": "Nave", "rarity": "Epico",    "cluster_max": 3, "secondary": "Tungsten (10-20%)"},
+    {"name": "Beryl",         "base": 3540, "category": "Nave", "rarity": "Raro",     "cluster_max": 4, "secondary": "-"},
+    {"name": "Taranite",      "base": 3555, "category": "Nave", "rarity": "Raro",     "cluster_max": 4, "secondary": "-"},
+    {"name": "Borase",        "base": 3570, "category": "Nave", "rarity": "Raro",     "cluster_max": 4, "secondary": "Gold (5-10%), Bexalite (5-10%)"},
+    {"name": "Gold",          "base": 3585, "category": "Nave", "rarity": "Raro",     "cluster_max": 4, "secondary": "Borase (5-10%), Bexalite (5-10%)"},
+    {"name": "Bexalite",      "base": 3600, "category": "Nave", "rarity": "Raro",     "cluster_max": 6, "secondary": "Gold (5-10%), Borase (5-10%)"},
+    {"name": "Laranite",      "base": 3825, "category": "Nave", "rarity": "Incomum",  "cluster_max": 5, "secondary": "Tungsten (10-20%)"},
+    {"name": "Aslarite",      "base": 3840, "category": "Nave", "rarity": "Incomum",  "cluster_max": 5, "secondary": "Titanium (5-10%), Agricium (5-10%)"},
+    {"name": "Titanium",      "base": 3855, "category": "Nave", "rarity": "Incomum",  "cluster_max": 5, "secondary": "Aslarite (5-10%), Agricium (5-10%)"},
+    {"name": "Tungsten",      "base": 3870, "category": "Nave", "rarity": "Incomum",  "cluster_max": 5, "secondary": "Laranite (10-20%)"},
+    {"name": "Agricium",      "base": 3885, "category": "Nave", "rarity": "Incomum",  "cluster_max": 5, "secondary": "Titanium (5-10%), Aslarite (5-10%)"},
+    {"name": "Torite",        "base": 3900, "category": "Nave", "rarity": "Incomum",  "cluster_max": 5, "secondary": "-"},
+    {"name": "Hephaestanite", "base": 4180, "category": "Nave", "rarity": "Comum",    "cluster_max": 6, "secondary": "Quartz (5-10%), Silicon (5-10%)"},
+    {"name": "Tin",           "base": 4195, "category": "Nave", "rarity": "Comum",    "cluster_max": 6, "secondary": "Copper (10-20%)"},
+    {"name": "Quartz",        "base": 4210, "category": "Nave", "rarity": "Comum",    "cluster_max": 6, "secondary": "Hephaestanite (5-10%), Silicon (5-10%)"},
+    {"name": "Corundum",      "base": 4225, "category": "Nave", "rarity": "Comum",    "cluster_max": 4, "secondary": "Aluminum (10-20%)"},
+    {"name": "Copper",        "base": 4240, "category": "Nave", "rarity": "Comum",    "cluster_max": 6, "secondary": "Tin (10-20%)"},
+    {"name": "Silicon",       "base": 4255, "category": "Nave", "rarity": "Comum",    "cluster_max": 6, "secondary": "Hephaestanite (5-10%), Quartz (5-10%)"},
+    {"name": "Iron",          "base": 4270, "category": "Nave", "rarity": "Comum",    "cluster_max": 6, "secondary": "-"},
+    {"name": "Aluminum",      "base": 4285, "category": "Nave", "rarity": "Comum",    "cluster_max": 6, "secondary": "Corundum (10-20%)"},
+    {"name": "Ice",           "base": 4300, "category": "Nave", "rarity": "Comum",    "cluster_max": 6, "secondary": "-"},
+
+    {"name": "Deposito ROC (veiculo)", "base": 4000, "category": "ROC",  "rarity": "Gema", "cluster_max": 7, "secondary": "-", "note": "Mineral depende do local (Hadanite, Janalite, Aphorite, Dolivine...)"},
+    {"name": "Deposito FPS (mao)",     "base": 3000, "category": "FPS",  "rarity": "Gema", "cluster_max": 7, "secondary": "-", "note": "Na superficie = deposito; no espaco = destrocos de nave capital"},
+    {"name": "Paineis de salvage",     "base": 2000, "category": "Salvage", "rarity": "Salvage", "cluster_max": 10, "secondary": "-", "note": "Cada painel = 2000 (valor da comunidade, confirme no jogo)"}
+  ]
+}

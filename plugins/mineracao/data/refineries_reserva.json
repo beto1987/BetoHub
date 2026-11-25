@@ -1,0 +1,1093 @@
+{
+ "_info": "Bonus de rendimento do refino por estacao (%). Fonte: uexcorp.space/mining/refineries (nov/2026, patch 4.10). Os valores mudam com patches: confirme o rendimento no terminal da refinaria. Edite aqui para atualizar.",
+ "ores": {
+  "Agricium": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "MIC-L1",
+    "system": "Stanton",
+    "bonus": 8
+   },
+   {
+    "station": "Terra Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 8
+   },
+   {
+    "station": "HUR-L2",
+    "system": "Stanton",
+    "bonus": -2
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": -8
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -8
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": -8
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -8
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": -8
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -8
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": -8
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -8
+   }
+  ],
+  "Aluminum": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "MIC-L1",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "Terra Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -3
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": -4
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -4
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": -4
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -4
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": -4
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -4
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -4
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": -5
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -5
+   }
+  ],
+  "Bexalite": [
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 12
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": 9
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": -2
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -2
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": -2
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -2
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": -2
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -2
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": -2
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -2
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": -6
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -6
+   }
+  ],
+  "Borase": [
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 9
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": 1
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": 1
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": 1
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": 1
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": 1
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": 1
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": 1
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": 1
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": -3
+   }
+  ],
+  "Copper": [
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 9
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": 6
+   },
+   {
+    "station": "MIC-L1",
+    "system": "Stanton",
+    "bonus": 4
+   },
+   {
+    "station": "Terra Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 4
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "HUR-L2",
+    "system": "Stanton",
+    "bonus": -3
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -5
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -5
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": -5
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -5
+   }
+  ],
+  "Corundum": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": 6
+   },
+   {
+    "station": "MIC-L1",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "Terra Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "HUR-L2",
+    "system": "Stanton",
+    "bonus": 1
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": -3
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -5
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -5
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": -5
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -9
+   }
+  ],
+  "Gold": [
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": 9
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 5
+   },
+   {
+    "station": "HUR-L2",
+    "system": "Stanton",
+    "bonus": 1
+   },
+   {
+    "station": "MIC-L1",
+    "system": "Stanton",
+    "bonus": 1
+   },
+   {
+    "station": "Terra Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 1
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": -3
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -3
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": -3
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -3
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": -3
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -3
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": -3
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -3
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": -6
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -6
+   }
+  ],
+  "Iron": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 8
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": 1
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 1
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -5
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": -5
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": -5
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": -5
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": -5
+   }
+  ],
+  "Laranite": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 7
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": 2
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": 2
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "MIC-L1",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Terra Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "HUR-L2",
+    "system": "Stanton",
+    "bonus": -1
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": -1
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": -2
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -2
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": -8
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -8
+   }
+  ],
+  "Quantainium": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 5
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": 3
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": 3
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 3
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": 2
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": 2
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "HUR-L2",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": 2
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": 1
+   }
+  ],
+  "Tungsten": [
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": 9
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "Checkmate",
+    "system": "Pyro",
+    "bonus": 4
+   },
+   {
+    "station": "Nyx Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": 4
+   },
+   {
+    "station": "Orbituary",
+    "system": "Pyro",
+    "bonus": 4
+   },
+   {
+    "station": "Pyro Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": 4
+   },
+   {
+    "station": "Ruin Station",
+    "system": "Pyro",
+    "bonus": 4
+   },
+   {
+    "station": "Stanton Gateway (Nyx)",
+    "system": "Nyx",
+    "bonus": 4
+   },
+   {
+    "station": "HUR-L1",
+    "system": "Stanton",
+    "bonus": 4
+   },
+   {
+    "station": "Stanton Gateway (Pyro)",
+    "system": "Pyro",
+    "bonus": 4
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 2
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -5
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": -6
+   }
+  ],
+  "Beryl": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "HUR-L2",
+    "system": "Stanton",
+    "bonus": 1
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "MIC-L1",
+    "system": "Stanton",
+    "bonus": -6
+   },
+   {
+    "station": "Terra Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -6
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": -8
+   }
+  ],
+  "Hephaestanite": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 8
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": -2
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -2
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -4
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -5
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": -8
+   }
+  ],
+  "Lindinium": [
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 7
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 4
+   }
+  ],
+  "Quartz": [
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": 11
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 11
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -2
+   },
+   {
+    "station": "MIC-L1",
+    "system": "Stanton",
+    "bonus": -3
+   },
+   {
+    "station": "Terra Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -3
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": -5
+   }
+  ],
+  "Savrilium": [
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 6
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 1
+   }
+  ],
+  "Taranite": [
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": 5
+   },
+   {
+    "station": "HUR-L2",
+    "system": "Stanton",
+    "bonus": -3
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": -6
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -6
+   }
+  ],
+  "Titanium": [
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 13
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 8
+   },
+   {
+    "station": "MIC-L2",
+    "system": "Stanton",
+    "bonus": 6
+   },
+   {
+    "station": "ARC-L1",
+    "system": "Stanton",
+    "bonus": 5
+   },
+   {
+    "station": "Nyx Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": 5
+   },
+   {
+    "station": "ARC-L2",
+    "system": "Stanton",
+    "bonus": 3
+   },
+   {
+    "station": "CRU-L1",
+    "system": "Stanton",
+    "bonus": -1
+   },
+   {
+    "station": "Pyro Gateway (Stanton)",
+    "system": "Stanton",
+    "bonus": -1
+   },
+   {
+    "station": "ARC-L4",
+    "system": "Stanton",
+    "bonus": -2
+   }
+  ],
+  "Torite": [
+   {
+    "station": "MIC-L5",
+    "system": "Stanton",
+    "bonus": 8
+   },
+   {
+    "station": "Levski",
+    "system": "Nyx",
+    "bonus": 1
+   }
+  ]
+ }
+}

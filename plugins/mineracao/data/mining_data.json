@@ -1,0 +1,306 @@
+{
+ "_info": "Dados de mineracao (patch 4.10). Fontes: aogaming.tools (cabecas de laser), star-citizen.wiki / grimhex.net (modulos), uexcorp.space (gadgets). power/resistance em multiplicadores: 1.5 = +50%, 0.85 = -15%. Edite se a CIG mudar algo.",
+ "formula": "Potencia necessaria = (Massa / (1 - ResistenciaAjustada/100)) / 5. ResistenciaAjustada = resistencia da rocha x produto dos modificadores (cabeca, modulos, gadget).",
+ "ships": {
+  "Prospector": {
+   "lasers": 1,
+   "size": 1,
+   "default_head": "Arbor MH1"
+  },
+  "MOLE": {
+   "lasers": 3,
+   "size": 2,
+   "default_head": "Arbor MH2"
+  },
+  "Golem": {
+   "lasers": 1,
+   "size": 1,
+   "default_head": "Pitman",
+   "only": [
+    "Pitman"
+   ]
+  }
+ },
+ "heads": {
+  "Arbor MH1": {
+   "size": 1,
+   "min": 117,
+   "max": 2340,
+   "slots": 1,
+   "resistance": 1.25,
+   "instability": 0.65
+  },
+  "Helix I": {
+   "size": 1,
+   "min": 780,
+   "max": 3900,
+   "slots": 2,
+   "resistance": 0.7,
+   "instability": 1.0
+  },
+  "Hofstede-S1": {
+   "size": 1,
+   "min": 105,
+   "max": 2100,
+   "slots": 1,
+   "resistance": 0.7,
+   "instability": 1.1
+  },
+  "Impact I": {
+   "size": 1,
+   "min": 520,
+   "max": 2600,
+   "slots": 2,
+   "resistance": 1.1,
+   "instability": 0.9
+  },
+  "Lancet MH1": {
+   "size": 1,
+   "min": 624,
+   "max": 3120,
+   "slots": 1,
+   "resistance": 1.0,
+   "instability": 0.9
+  },
+  "Pitman": {
+   "size": 1,
+   "min": 780,
+   "max": 3900,
+   "slots": 2,
+   "resistance": 1.25,
+   "instability": 1.35
+  },
+  "Arbor MH2": {
+   "size": 2,
+   "min": 145,
+   "max": 2900,
+   "slots": 2,
+   "resistance": 1.25,
+   "instability": 0.65
+  },
+  "Helix II": {
+   "size": 2,
+   "min": 1479,
+   "max": 4930,
+   "slots": 3,
+   "resistance": 0.7,
+   "instability": 1.0
+  },
+  "Hofstede-S2": {
+   "size": 2,
+   "min": 406,
+   "max": 4060,
+   "slots": 2,
+   "resistance": 0.7,
+   "instability": 1.1
+  },
+  "Impact II": {
+   "size": 2,
+   "min": 1218,
+   "max": 4060,
+   "slots": 3,
+   "resistance": 1.1,
+   "instability": 0.9
+  },
+  "Klein-S2": {
+   "size": 2,
+   "min": 870,
+   "max": 4350,
+   "slots": 1,
+   "resistance": 0.55,
+   "instability": 1.35
+  },
+  "Lancet MH2": {
+   "size": 2,
+   "min": 1305,
+   "max": 4350,
+   "slots": 2,
+   "resistance": 1.0,
+   "instability": 0.9
+  }
+ },
+ "modules": {
+  "Surge": {
+   "type": "ativo",
+   "power": 1.5,
+   "resistance": 0.85,
+   "instability": 1.1
+  },
+  "Stampede": {
+   "type": "ativo",
+   "power": 1.35,
+   "resistance": 1.0,
+   "instability": 0.9
+  },
+  "Brandt": {
+   "type": "ativo",
+   "power": 1.35,
+   "resistance": 1.15,
+   "instability": 1.0
+  },
+  "Rime": {
+   "type": "ativo",
+   "power": 0.85,
+   "resistance": 0.75,
+   "instability": 1.0
+  },
+  "Lifeline": {
+   "type": "ativo",
+   "power": 1.0,
+   "resistance": 0.85,
+   "instability": 0.8
+  },
+  "Forel": {
+   "type": "ativo",
+   "power": 1.0,
+   "resistance": 1.15,
+   "instability": 1.0
+  },
+  "Optimum": {
+   "type": "ativo",
+   "power": 0.85,
+   "resistance": 1.0,
+   "instability": 0.9
+  },
+  "Torpid": {
+   "type": "ativo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Rieger": {
+   "type": "passivo",
+   "power": 1.15,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Rieger-C2": {
+   "type": "passivo",
+   "power": 1.2,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Rieger-C3": {
+   "type": "passivo",
+   "power": 1.25,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Focus": {
+   "type": "passivo",
+   "power": 0.85,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Focus II": {
+   "type": "passivo",
+   "power": 0.9,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Focus III": {
+   "type": "passivo",
+   "power": 0.95,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "FLTR": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "FLTR-L": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "FLTR-XL": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Torrent": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Torrent II": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Torrent III": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Vaux": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Vaux-C2": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Vaux-C3": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "XTR": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "XTR-L": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "XTR-XL": {
+   "type": "passivo",
+   "power": 1.0,
+   "resistance": 1.0,
+   "instability": 1.0
+  }
+ },
+ "gadgets": {
+  "Sabir": {
+   "resistance": 0.5,
+   "instability": 1.15
+  },
+  "OptiMax": {
+   "resistance": 0.7,
+   "instability": 1.0
+  },
+  "BoreMax": {
+   "resistance": 1.1,
+   "instability": 0.3
+  },
+  "Okunis": {
+   "resistance": 1.0,
+   "instability": 1.0
+  },
+  "Stalwart": {
+   "resistance": 1.0,
+   "instability": 0.65
+  },
+  "Waveshift": {
+   "resistance": 1.0,
+   "instability": 0.65
+  }
+ }
+}

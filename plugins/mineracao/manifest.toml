@@ -1,0 +1,9 @@
+# Manifesto do módulo Mineração (o Star Citizen Beto Scanner integrado ao Hub)
+id = "mineracao"
+nome = "Mineração"
+versao = "1.2.0"     # continua a numeração do Beto Scanner (1.1.1)
+descricao = "Lê o número do scan e o painel da rocha por OCR: minério, quantidade, quebra e melhor refino."
+ordem = 20
+api_minima = 1
+modulo = "plugin"
+classe = "Plugin"
