@@ -1,0 +1,9 @@
+# Manifesto do módulo Refino
+id = "refino"
+nome = "Refino"
+versao = "0.1.0"
+descricao = "Compara métodos de refino por refinaria, calcula o lucro previsto e avisa quando o pedido fica pronto."
+ordem = 40
+api_minima = 1
+modulo = "plugin"
+classe = "Plugin"
