@@ -1,0 +1,9 @@
+# Manifesto do módulo Comércio
+id = "comercio"
+nome = "Comércio"
+versao = "0.1.0"
+descricao = "Rotas de comércio mais eficientes (lucro por distância) com nota de risco."
+ordem = 10           # posição da aba (menor = mais à esquerda)
+api_minima = 1       # versão do contrato de plugin exigida
+modulo = "plugin"
+classe = "Plugin"
