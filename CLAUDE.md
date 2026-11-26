@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Star Citizen Beto Hub: a modular Windows desktop helper for Star Citizen (Python 3.13, PySide6). It only reads the screen (OCR) and community APIs (UEX Corp API 2.0 and the Star Citizen Wiki API). It never modifies game files or injects code. Global hotkeys poll `GetAsyncKeyState` every 25 ms and use no keyboard hook. Keep it that way.
+Star Citizen Beto Hub: a modular Windows desktop helper for Star Citizen (Python 3.13, PySide6). It only reads the screen (OCR), the game's own `Game.log` text file, and community APIs (UEX Corp API 2.0 and the Star Citizen Wiki API). It never modifies game files or injects code. Global hotkeys poll `GetAsyncKeyState` every 25 ms and use no keyboard hook. Keep it that way.
 
 The code, identifiers, comments, UI strings and user docs (`LEIA-ME.md`) are in **Brazilian Portuguese**. Follow that convention: `controlador`, `logica`, `aba`, `migracoes`, `publicar`/`assinar` and so on.
 
@@ -37,9 +37,9 @@ There is no linter or formatter configured. `tests/conftest.py` puts the repo ro
 - Hooks: `setup(ctx)`, `criar_aba` (required), `criar_painel_overlay`, `criar_painel_config` with `aplicar_config`, and `encerrar`.
 - `HubContext` (`self.ctx`) is the plugin's only access to the app: `config`, `banco`, `eventos`, `workers`, `log`, `notificar`, `pasta_dados`, `servico(name)`, and `opcao`/`salvar_opcoes` for the plugin's own `[modulos.<id>]` config section.
 - `plugin_loader.py` isolates failures. A plugin that raises during import, migration or setup becomes an error tab and the app keeps running. Raise `API_VERSAO` only for incompatible contract changes.
-- Plugins never import each other. They talk over the event bus with names like `"<target_plugin>.<action>"`, for example `log_capitao.registrar_viagem`, `log_capitao.registrar_refino`, and `hub.mostrar_aba`, which the app handles.
+- Plugins never import each other. They talk over the event bus with names like `"<target_plugin>.<action>"`, for example `log_capitao.registrar_viagem`, `log_capitao.registrar_refino`, `log_capitao.registrar_contrato`, and `hub.mostrar_aba`, which the app handles. For a `contrato` entry, the Log do Capitão stores the total reward in `preco_venda` and expenses in `custo_extra`. Unlike trade entries, these are not per-SCU values.
 - `frota.nave_ativa` is a broadcast in the other direction. Frota publishes it when the user picks an active ship, with `{"nome", "uuid", "chaves", "carga_scu", "minerio_scu"}`. `comercio` and `mineracao` subscribe and select the same ship. They match it by comparing `beto_hub.core.texto.chave_nome(<their ship name>)` against `chaves`. Use `chave_nome` whenever names from different sources (UEX, Wiki, local JSON) must be compared.
-- Status: `comercio`, `mineracao`, `refino`, `frota` and `log_capitao` are implemented. `contratos` is an "em construção" stub.
+- Status: all modules are implemented (`comercio`, `mineracao`, `contratos`, `refino`, `frota`, `log_capitao`).
 
 **Internal layout of a full plugin** (for example `comercio`, `mineracao`, `refino`):
 - `logica/`: pure Python with no Qt, no network and no I/O. Most tests target this layer.
@@ -67,6 +67,17 @@ There is no linter or formatter configured. `tests/conftest.py` puts the repo ro
 - `tests/test_scanner_thread.py` drives the scanner with a fake capturer and a fake OCR, so it needs neither Windows nor winocr.
 
 **Frota data** (`plugins/frota/logica/naves.py`): the Wiki list includes display models (`*_Display`), mission variants (`_Boarded`, `_TEMP_`) and repeated names (Best in Show paints). `fichas_de_wiki` filters those out, keeps one entry per identical stat set, and adds a suffix to variants that share a name but differ in stats. The hangar stores the Wiki `uuid` and the ship name as a fallback. All stats describe the stock loadout. Loadout editing is not implemented.
+
+**Contratos** (`plugins/contratos/`) tails `<game>\LIVE\Game.log` every 2 s on a worker. It reads only new bytes (`LeitorGameLog`) and detects a new game session when the file's first line changes. About once a minute it also reads `logbackups\*.log` files newer than the `backups_ate` state.
+- `logica/eventos.analisar` turns lines into events. The sources are `SHUDEvent_OnNotification` (Contract Accepted/Complete/Failed/Withdrawn, New Objective, Objective Withdrawn, keyed by `MissionId`), `ObjectiveUpserted`, `EndMission` (`CompletionType`), and `CLocalMissionPhaseMarker::CreateMarker` (an internal contract name, used as a fallback title in older logs).
+- `RepositorioContratos.aplicar` must stay idempotent, because the same session is read live and again later from its backup.
+- The log has no reward or deadline. The player enters the reward.
+- Contracts left `ativo` for 3 days become `sem_fim` ("Sem desfecho no log").
+- Never write to the game folder.
+- The delivery route planner (`logica/rota.py`, `ui/rota.py`) works in three steps:
+  - It parses the pending `Deliver X/Y SCU of <cargo> to <place>` objectives of active contracts. A pickup stop comes only from a title containing `from X`, because the log has no pickup locations.
+  - `IndiceLocais` maps place names to UEX terminals through `space_station_name`, `city_name`, `outpost_name` and `displayname`. One commodity terminal represents each place for distances. Generic places such as "Pyro System" are left for the player to choose.
+  - `melhor_rota` merges stops that share a place. It finds the shortest order with pickup-before-delivery constraints, using exact branch and bound for up to 10 places and nearest neighbour above that. Distances come from `ClienteUEX.distancias`. An unknown distance counts as a 1000 Gm penalty and is reported in the result.
 
 **UI smoke testing**: a running Hub holds a single-instance lock. To exercise the real UI without touching it, point `APPDATA` and `LOCALAPPDATA` at a temp dir, then set `QT_QPA_PLATFORM=offscreen` and `QT_QPA_FONTDIR=C:/Windows/Fonts` (without the font dir, text renders as boxes). Build `HubApp(argv)._montar()`, drive the widgets, and save screenshots with `widget.grab().save(...)`.
 

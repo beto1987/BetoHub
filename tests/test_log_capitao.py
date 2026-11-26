@@ -70,3 +70,9 @@ def test_refino_no_log_e_migracao_da_versao_1(tmp_path):
     assert r["lucro_total"] == pytest.approx(20 + 28.8 * 90 - 1500)
     assert repo.listar()[1].custo_extra == 0  # entrada antiga ganhou o valor padrão
     banco.fechar()
+
+
+def test_entrada_de_contrato_usa_recompensa_total():
+    from plugins.log_capitao.repositorio import TIPO_CONTRATO, Entrada
+    e = Entrada(tipo=TIPO_CONTRATO, titulo="Rookie Haul", preco_venda=45000, custo_extra=5000)
+    assert (e.tem_valor, e.receita, e.investimento, e.lucro, e.resumo) == (True, 45000, 5000, 40000, "Rookie Haul")

@@ -3,8 +3,8 @@
 App desktop modular de apoio ao Star Citizen (Windows, Python 3.13, PySide6).
 Só lê a tela e APIs da comunidade: **não modifica arquivos do jogo nem injeta código**.
 
-> Estado atual: **etapa 6**. Os módulos **Comércio**, **Mineração**, **Refino**, **Frota** e
-> **Log do Capitão** estão prontos. Contratos ainda aparece como aba "em construção".
+> Estado atual: **etapa 7**. Todos os módulos estão prontos: **Comércio**, **Mineração**,
+> **Contratos**, **Refino**, **Frota** e **Log do Capitão**.
 
 ## Instalar e rodar
 
@@ -86,6 +86,34 @@ e recria o arquivo com os valores padrão.
   ajuste, para acertar área e limiar.
 - Um resultado só aparece depois de ser lido igual duas vezes seguidas (como no Beto Scanner).
 
+## Contratos
+
+- O Hub acompanha seus contratos **sozinho**, lendo o `Game.log` que o Star Citizen grava enquanto
+  você joga (só leitura: nada é alterado na pasta do jogo). Em poucos segundos depois de aceitar um
+  contrato, ele aparece em **Ativos** com os objetivos, que vão sendo marcados conforme você conclui.
+- Quando o contrato termina (concluído, falhou ou abandonado), o Windows avisa com um balão, e ele
+  passa para o **Histórico**, com filtros por período, resultado e tipo, e um resumo com a taxa de
+  sucesso.
+- O log **não mostra a recompensa nem o prazo**: informe a recompensa no painel do contrato. Num
+  contrato concluído, **Registrar no Log do Capitão** abre o formulário já preenchido.
+- **Importar histórico** lê os logs das suas sessões anteriores (pasta `logbackups` do jogo). Se você
+  jogar com o Hub fechado, ele lê essas sessões sozinho quando abrir.
+- Contratos que ficam "ativos" por mais de 3 dias sem novidade (o jogo fechou antes do fim, por
+  exemplo) passam para **Sem desfecho no log**. Use **Marcar concluído / abandonado** se precisar.
+- **Rota de entregas**: junta as entregas pendentes dos contratos de transporte ativos (lidas
+  dos objetivos "Deliver … to …") e calcula a ordem com a **menor distância total**, usando as
+  distâncias da UEX. Escolha em **Estou em** onde você está e clique em **Calcular melhor rota**.
+  - Quando o título diz "from X", a coleta em X entra na rota antes das entregas daquele contrato.
+  - Várias entregas no mesmo lugar viram uma parada só.
+  - Quando o jogo só informa o sistema ("Pyro System") ou o local não está na UEX, a linha fica
+    em âmbar: escolha o local na lista (ele aparece no seu mobiGlas). Desmarque o que não quer
+    incluir.
+  - O log do jogo não informa os pontos de coleta de cada carga; por isso só entram as coletas
+    citadas no título.
+- O overlay tem uma aba com a rota calculada e os contratos ativos com seus objetivos.
+- A pasta do jogo é detectada sozinha (canal LIVE). Para o PTU ou outra instalação, escolha a pasta
+  em **Configurações › Contratos**.
+
 ## Refino
 
 - **Novo pedido** (pela aba ou pelo botão no overlay, que abre uma janelinha por cima do jogo):
@@ -122,7 +150,8 @@ e recria o arquivo com os valores padrão.
 - Aba própria (fora do overlay) para registrar as viagens realizadas e fazer anotações livres.
 - Na aba Comércio, selecione uma rota e clique em **Registrar no Log do Capitão** (ou dê dois
   cliques nela). O formulário abre pré-preenchido para você ajustar os valores reais.
-- Também recebe as operações de **Refino** (custo do refino, refinado vendido e lucro).
+- Também recebe as operações de **Refino** (custo do refino, refinado vendido e lucro) e os
+  **Contratos** concluídos (recompensa e despesas).
 - Mostra um resumo do período (operações, lucro total, lucro médio e melhor operação) e exporta
   para CSV, que abre direto no Excel.
 

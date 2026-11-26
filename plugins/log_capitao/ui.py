@@ -15,8 +15,8 @@ from PySide6.QtWidgets import (
 )
 
 from .repositorio import (
-    FORMATO_DATA, NOMES_TIPO, PERIODOS, TIPO_ANOTACAO, TIPO_COMERCIO, TIPO_REFINO, Entrada, RepositorioLog,
-    data_inicial,
+    FORMATO_DATA, NOMES_TIPO, PERIODOS, TIPO_ANOTACAO, TIPO_COMERCIO, TIPO_CONTRATO, TIPO_REFINO, Entrada,
+    RepositorioLog, data_inicial,
 )
 
 FORMATO_QT = "yyyy-MM-dd HH:mm"
@@ -58,7 +58,8 @@ class ModeloLog(QAbstractTableModel):
             return None
         e = self.entradas[indice.row()]
         col = COLUNAS[indice.column()]
-        comercio = e.tem_valor  # comércio ou refino
+        comercio = e.tem_valor  # comércio, refino ou contrato
+        por_scu = e.tipo in (TIPO_COMERCIO, TIPO_REFINO)
         if papel == Qt.DisplayRole:
             if comercio and e.origem and e.destino:
                 rota = f"{e.origem} → {e.destino}"
@@ -69,9 +70,9 @@ class ModeloLog(QAbstractTableModel):
                 "Tipo": NOMES_TIPO.get(e.tipo, e.tipo),
                 "Mercadoria / Título": e.resumo,
                 "Rota": rota,
-                "SCU": _n(e.scu, 2 if e.tipo == TIPO_REFINO else 0) if comercio else "",
+                "SCU": _n(e.scu, 2 if e.tipo == TIPO_REFINO else 0) if por_scu else "",
                 "Compra/SCU": _n(e.preco_compra, 2) if e.tipo == TIPO_COMERCIO else "",
-                "Venda/SCU": _n(e.preco_venda, 2) if comercio else "",
+                "Venda/SCU": _n(e.preco_venda, 2) if por_scu else "",
                 "Investimento": _n(e.investimento) if comercio else "",
                 "Lucro": _n(e.lucro) if comercio else "",
                 "Notas": e.notas.replace("\n", " ")[:80],
@@ -84,6 +85,8 @@ class ModeloLog(QAbstractTableModel):
             return e.notas
         if papel == Qt.ToolTipRole and col == "Investimento" and e.tipo == TIPO_REFINO:
             return "Custo do refino"
+        if papel == Qt.ToolTipRole and col in ("Investimento", "Lucro") and e.tipo == TIPO_CONTRATO:
+            return f"Recompensa {_n(e.receita)} aUEC − despesas {_n(e.investimento)} aUEC"
         return None
 
 
@@ -94,8 +97,10 @@ class DialogoEntrada(QDialog):
         self.entrada = entrada
         comercio = entrada.tipo == TIPO_COMERCIO
         refino = entrada.tipo == TIPO_REFINO
+        contrato = entrada.tipo == TIPO_CONTRATO
         novo = entrada.id is None
-        nome_tipo = "viagem" if comercio else ("operação de refino" if refino else "anotação")
+        nome_tipo = ("viagem" if comercio else "operação de refino" if refino else
+                     "entrada de contrato" if contrato else "anotação")
         self.setWindowTitle(("Nova " if novo else "Editar ") + nome_tipo)
         self.setMinimumWidth(460)
         form = QFormLayout()
@@ -151,6 +156,23 @@ class DialogoEntrada(QDialog):
             dica.setWordWrap(True)
             dica.setProperty("papel", "ajuda")
             form.addRow(dica)
+        elif contrato:
+            self.titulo = QLineEdit(entrada.titulo)
+            self.titulo.setPlaceholderText("Nome do contrato")
+            self.origem = QLineEdit(entrada.origem)
+            self.origem.setPlaceholderText("Opcional. Ex.: Canard View")
+            self.venda = self._numero(entrada.preco_venda, 0, " aUEC")
+            self.custo_contrato = self._numero(entrada.custo_extra, 0, " aUEC")
+            self.custo_contrato.setToolTip("Gastos para cumprir o contrato: combustível, munição, reparos, compra de carga…")
+            form.addRow("Contrato:", self.titulo)
+            form.addRow("Local:", self.origem)
+            form.addRow("Recompensa:", self.venda)
+            form.addRow("Despesas:", self.custo_contrato)
+            self.calculo = QLabel()
+            form.addRow("Resultado:", self.calculo)
+            for campo in (self.venda, self.custo_contrato):
+                campo.valueChanged.connect(self._recalcular)
+            self._recalcular()
         else:
             self.titulo = QLineEdit(entrada.titulo)
             self.titulo.setPlaceholderText("Ex.: Emboscada perto de CRU-L1")
@@ -158,7 +180,7 @@ class DialogoEntrada(QDialog):
 
         self.notas = QPlainTextEdit(entrada.notas)
         self.notas.setPlaceholderText("Anotações livres…")
-        self.notas.setFixedHeight(110 if (comercio or refino) else 180)
+        self.notas.setFixedHeight(110 if (comercio or refino or contrato) else 180)
         form.addRow("Notas:", self.notas)
 
         botoes = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
@@ -183,11 +205,14 @@ class DialogoEntrada(QDialog):
         return campo
 
     def _recalcular(self) -> None:
-        if self.entrada.tipo == TIPO_REFINO:
+        if self.entrada.tipo == TIPO_CONTRATO:
+            inv, rec = self.custo_contrato.value(), self.venda.value()
+        elif self.entrada.tipo == TIPO_REFINO:
             inv = self.custo_refino.value()
+            rec = self.scu.value() * self.venda.value()
         else:
             inv = self.scu.value() * self.compra.value()
-        rec = self.scu.value() * self.venda.value()
+            rec = self.scu.value() * self.venda.value()
         lucro = rec - inv
         cor = "#4cd98a" if lucro >= 0 else "#ff5c5c"
         self.calculo.setText(
@@ -199,7 +224,13 @@ class DialogoEntrada(QDialog):
         e = self.entrada
         e.data = self.data.dateTime().toString(FORMATO_QT)
         e.notas = self.notas.toPlainText().strip()
-        if e.tem_valor:
+        if e.tipo == TIPO_CONTRATO:
+            e.titulo, e.origem = self.titulo.text().strip(), self.origem.text().strip()
+            e.preco_venda, e.custo_extra, e.scu = self.venda.value(), self.custo_contrato.value(), 0
+            if not e.titulo:
+                QMessageBox.warning(self, "Log do Capitão", "Informe o nome do contrato.")
+                return
+        elif e.tem_valor:
             e.mercadoria = self.mercadoria.text().strip()
             e.origem, e.destino = self.origem.text().strip(), self.destino.text().strip()
             e.scu, e.preco_venda = self.scu.value(), self.venda.value()
@@ -261,6 +292,7 @@ class AbaLog(QWidget):
         acoes = (
             ("+ Nova viagem", lambda: self.nova(TIPO_COMERCIO), True),
             ("+ Novo refino", lambda: self.nova(TIPO_REFINO), False),
+            ("+ Novo contrato", lambda: self.nova(TIPO_CONTRATO), False),
             ("+ Nova anotação", lambda: self.nova(TIPO_ANOTACAO), False),
             ("Editar", self.editar, False),
             ("Excluir", self.excluir, False),
@@ -309,12 +341,12 @@ class AbaLog(QWidget):
         cor = "#4cd98a" if r["lucro_total"] >= 0 else "#ff5c5c"
         self.cartoes["operacoes"].setText(
             f"{r['operacoes']}  <span style='font-size:9pt;color:#7f98ad'>"
-            f"{r['viagens']} viagens · {r['refinos']} refinos</span>")
+            f"{r['viagens']} viagens · {r['refinos']} refinos · {r['contratos']} contratos</span>")
         self.cartoes["lucro_total"].setText(f"<span style='color:{cor}'>{_n(r['lucro_total'])}</span>")
         self.cartoes["lucro_medio"].setText(_n(r["lucro_medio"]))
         m = r["melhor"]
         self.cartoes["melhor"].setText(
-            f"{_n(m.lucro)} <span style='font-size:9pt;color:#7f98ad'>{m.mercadoria}</span>" if m else "—"
+            f"{_n(m.lucro)} <span style='font-size:9pt;color:#7f98ad'>{m.resumo}</span>" if m else "—"
         )
         self._ao_selecionar()
 

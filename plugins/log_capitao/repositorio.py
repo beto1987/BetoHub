@@ -12,9 +12,12 @@ from beto_hub.core.database import BancoDados
 
 TIPO_COMERCIO = "comercio"
 TIPO_REFINO = "refino"
+TIPO_CONTRATO = "contrato"
 TIPO_ANOTACAO = "anotacao"
-NOMES_TIPO = {TIPO_COMERCIO: "Comércio", TIPO_REFINO: "Refino", TIPO_ANOTACAO: "Anotação"}
-TIPOS_COM_VALOR = (TIPO_COMERCIO, TIPO_REFINO)  # entradas que têm lucro
+NOMES_TIPO = {TIPO_COMERCIO: "Comércio", TIPO_REFINO: "Refino", TIPO_CONTRATO: "Contrato", TIPO_ANOTACAO: "Anotação"}
+TIPOS_COM_VALOR = (TIPO_COMERCIO, TIPO_REFINO, TIPO_CONTRATO)  # entradas que têm lucro
+# Contrato usa as colunas existentes: titulo (nome do contrato), origem (local),
+# preco_venda = recompensa TOTAL (aUEC, não por SCU) e custo_extra = despesas.
 FORMATO_DATA = "%Y-%m-%d %H:%M"
 
 MIGRACOES = [
@@ -55,7 +58,7 @@ class Entrada:
     preco_compra: float = 0
     preco_venda: float = 0
     notas: str = ""
-    custo_extra: float = 0  # refino: custo do refino em aUEC
+    custo_extra: float = 0  # refino: custo do refino em aUEC; contrato: despesas
     id: int | None = None
 
     @property
@@ -66,12 +69,14 @@ class Entrada:
     def investimento(self) -> float:
         if self.tipo == TIPO_COMERCIO:
             return self.scu * self.preco_compra
-        if self.tipo == TIPO_REFINO:
+        if self.tipo in (TIPO_REFINO, TIPO_CONTRATO):
             return self.custo_extra
         return 0.0
 
     @property
     def receita(self) -> float:
+        if self.tipo == TIPO_CONTRATO:
+            return self.preco_venda  # recompensa total
         return self.scu * self.preco_venda if self.tem_valor else 0.0
 
     @property
@@ -80,6 +85,8 @@ class Entrada:
 
     @property
     def resumo(self) -> str:
+        if self.tipo == TIPO_CONTRATO:
+            return self.titulo
         if self.tem_valor:
             return self.mercadoria
         return self.titulo or (self.notas.splitlines()[0][:60] if self.notas else "")
@@ -138,6 +145,7 @@ class RepositorioLog:
             "operacoes": len(operacoes),
             "viagens": sum(e.tipo == TIPO_COMERCIO for e in entradas),
             "refinos": sum(e.tipo == TIPO_REFINO for e in entradas),
+            "contratos": sum(e.tipo == TIPO_CONTRATO for e in entradas),
             "lucro_total": total,
             "lucro_medio": total / len(operacoes) if operacoes else 0.0,
             "scu_total": sum(e.scu for e in operacoes),
@@ -157,9 +165,10 @@ class RepositorioLog:
 
             for e in entradas:
                 comercio = e.tem_valor
+                por_scu = e.tipo in (TIPO_COMERCIO, TIPO_REFINO)
                 w.writerow([
                     e.data, NOMES_TIPO.get(e.tipo, e.tipo), e.resumo, e.origem, e.destino,
-                    num(e.scu) if comercio else "", num(e.preco_compra) if comercio else "",
-                    num(e.preco_venda) if comercio else "", num(e.investimento) if comercio else "",
+                    num(e.scu) if por_scu else "", num(e.preco_compra) if por_scu else "",
+                    num(e.preco_venda) if por_scu else "", num(e.investimento) if comercio else "",
                     num(e.receita) if comercio else "", num(e.lucro) if comercio else "", e.notas,
                 ])

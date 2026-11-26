@@ -1,8 +1,8 @@
 # Manifesto do módulo Contratos
 id = "contratos"
 nome = "Contratos"
-versao = "0.0.1"
-descricao = "Missões aceitas, prazos, recompensas e ordem ideal das entregas."
+versao = "0.1.0"
+descricao = "Contratos aceitos, objetivos e histórico, lidos do Game.log do Star Citizen."
 ordem = 30          # posição da aba (menor = mais à esquerda)
 api_minima = 1       # versão do contrato de plugin exigida
 modulo = "plugin"    # arquivo plugin.py

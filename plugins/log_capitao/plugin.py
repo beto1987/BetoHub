@@ -4,6 +4,7 @@ Outros módulos registram operações publicando eventos com um dicionário:
 - "log_capitao.registrar_viagem": mercadoria, origem, destino, scu, preco_compra, preco_venda
 - "log_capitao.registrar_refino": mercadoria, origem (refinaria), scu (refinado),
   preco_venda, custo_extra (custo do refino), notas
+- "log_capitao.registrar_contrato": titulo, origem (local), preco_venda (recompensa total), notas
 O Log abre o formulário pré-preenchido para você confirmar os valores reais.
 """
 
@@ -11,7 +12,7 @@ from __future__ import annotations
 
 from beto_hub.core.plugin_base import BasePlugin
 
-from .repositorio import MIGRACOES, TIPO_COMERCIO, TIPO_REFINO, RepositorioLog
+from .repositorio import MIGRACOES, TIPO_COMERCIO, TIPO_CONTRATO, TIPO_REFINO, RepositorioLog
 
 
 class Plugin(BasePlugin):
@@ -24,6 +25,7 @@ class Plugin(BasePlugin):
         self.aba = None
         ctx.eventos.assinar("log_capitao.registrar_viagem", lambda d: self._registrar(TIPO_COMERCIO, d))
         ctx.eventos.assinar("log_capitao.registrar_refino", lambda d: self._registrar(TIPO_REFINO, d))
+        ctx.eventos.assinar("log_capitao.registrar_contrato", lambda d: self._registrar(TIPO_CONTRATO, d))
 
     def criar_aba(self, parent):
         from .ui import AbaLog
