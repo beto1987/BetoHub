@@ -12,6 +12,7 @@ from typing import Any
 from PySide6.QtCore import QObject, QTimer, Signal
 
 from beto_hub.core.plugin_base import HubContext
+from beto_hub.core.texto import chave_nome
 
 from .logica.modelos import Nave, ParametrosBusca, Preco, Rota, Terminal
 from .logica.rotas import aplicar_distancias, calcular_rotas, ordenar
@@ -46,6 +47,7 @@ class ControladorComercio(QObject):
     rotasCalculadas = Signal(list)       # list[Rota], já ordenadas
     status = Signal(str, str)            # (texto, papel: "ajuda" | "ok" | "alerta" | "erro")
     ocupado = Signal(bool)
+    naveSugerida = Signal(int)           # id UEX da nave ativa escolhida na Frota
 
     def __init__(self, ctx: HubContext):
         super().__init__()
@@ -65,6 +67,8 @@ class ControladorComercio(QObject):
         self._timer.timeout.connect(lambda: self.carregar_dados(forcar=True))
         self._configurar_timer()
         ctx.config.alterado.connect(self._ao_mudar_config)
+        self._nave_ativa: dict[str, Any] | None = None
+        ctx.eventos.assinar("frota.nave_ativa", self._ao_nave_ativa)
 
     # ------------------------------------------------------------ opções
     def opcao(self, chave: str) -> Any:
@@ -124,6 +128,7 @@ class ControladorComercio(QObject):
         self.terminais, self.precos = r["terminais"], r["precos"]
         if r["naves"]:
             self.naves = r["naves"]
+            self._aplicar_nave_ativa()
         self.precos_obtidos_em = r["resultado_precos"].obtido_em
         self._emitir_status_precos(r["aviso"])
         self.dadosAtualizados.emit()
@@ -141,6 +146,28 @@ class ControladorComercio(QObject):
         texto = (f"{len(self.precos)} preços em {len(self.terminais)} terminais · "
                  f"atualizados {tempo_relativo(self.precos_obtidos_em)}")
         self.status.emit(" ".join(t for t in (aviso, extra, texto) if t), "alerta" if aviso else "ok")
+
+    # ------------------------------------------------------------ nave ativa (módulo Frota)
+    def _ao_nave_ativa(self, dados: dict[str, Any]) -> None:
+        self._nave_ativa = dados
+        self._aplicar_nave_ativa()
+
+    def _aplicar_nave_ativa(self) -> None:
+        """Seleciona a nave ativa da Frota, se ela levar carga. Espera a lista de naves chegar."""
+        dados = self._nave_ativa
+        if not dados or not self.naves:
+            return
+        self._nave_ativa = None
+        if not dados.get("carga_scu"):  # caça, ou nave de mineração (minério não é carga de comércio)
+            self.ctx.log.info("Nave ativa %s não leva carga; Comércio mantém a nave atual", dados.get("nome"))
+            return
+        chaves = set(dados.get("chaves") or [])
+        nave = next((n for n in self.naves if chave_nome(n.nome) in chaves), None)
+        if nave is None:
+            self.ctx.log.info("Nave ativa %s não tem carga na UEX; Comércio mantém a nave atual", dados.get("nome"))
+            return
+        self.ctx.salvar_opcoes({"nave_id": nave.id, "scu": nave.scu})
+        self.naveSugerida.emit(nave.id)
 
     def sistemas(self) -> list[str]:
         com_preco = {p.id_terminal for p in self.precos}

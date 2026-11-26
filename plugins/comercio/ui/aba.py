@@ -60,6 +60,7 @@ class AbaComercio(QWidget):
         self.c.rotasCalculadas.connect(self._ao_rotas)
         self.c.status.connect(self._ao_status)
         self.c.ocupado.connect(self._ao_ocupado)
+        self.c.naveSugerida.connect(self._ao_nave_sugerida)
 
         if self.c.precos:
             self._ao_dados()
@@ -232,6 +233,13 @@ class AbaComercio(QWidget):
     def _ao_mudar_sistema(self) -> None:
         if not self._carregando_form:
             self._preencher_origens()
+
+    def _ao_nave_sugerida(self, id_nave: int) -> None:
+        """Nave ativa escolhida na Frota: seleciona aqui também (o SCU vem junto)."""
+        indice = self.nave.findData(id_nave)
+        if indice >= 0:
+            self.nave.setCurrentIndex(indice)
+            self._ao_escolher_nave()  # garante o SCU mesmo se a nave já estava selecionada
 
     def _ao_escolher_nave(self) -> None:
         if self._carregando_form:

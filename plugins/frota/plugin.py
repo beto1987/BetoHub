@@ -1,21 +1,25 @@
-"""Módulo Frota — PROVISÓRIO (esqueleto da etapa 2).
+"""Módulo Frota: hangar do jogador, ficha técnica das naves e comparador.
 
-Só mostra uma aba "em construção"; será substituído pelo módulo real.
+Fonte das estatísticas: Star Citizen Wiki (dados extraídos do jogo, loadout de fábrica).
+A nave ativa é avisada aos outros módulos pelo evento "frota.nave_ativa".
 """
 
+from __future__ import annotations
+
 from beto_hub.core.plugin_base import BasePlugin
-from beto_hub.ui.widgets import PainelEmConstrucao
+
+from .controlador import ControladorFrota
+from .logica.hangar import MIGRACOES
 
 
 class Plugin(BasePlugin):
+    def migracoes(self):
+        return MIGRACOES
+
     def setup(self, ctx):
         super().setup(ctx)
-        ctx.log.debug("Módulo provisório carregado")
+        self.controlador = ControladorFrota(ctx)
 
     def criar_aba(self, parent):
-        return PainelEmConstrucao(
-            "Frota",
-            "Naves, loadouts e comparação de DPS, escudos e outras estatísticas.",
-            "Em uma das próximas etapas",
-            parent=parent,
-        )
+        from .ui.aba import AbaFrota
+        return AbaFrota(self.controlador, parent)

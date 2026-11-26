@@ -3,8 +3,8 @@
 App desktop modular de apoio ao Star Citizen (Windows, Python 3.13, PySide6).
 Só lê a tela e APIs da comunidade: **não modifica arquivos do jogo nem injeta código**.
 
-> Estado atual: **etapa 5**. Os módulos **Comércio**, **Mineração**, **Refino** e **Log do Capitão**
-> estão prontos. Contratos e Frota ainda aparecem como abas "em construção".
+> Estado atual: **etapa 6**. Os módulos **Comércio**, **Mineração**, **Refino**, **Frota** e
+> **Log do Capitão** estão prontos. Contratos ainda aparece como aba "em construção".
 
 ## Instalar e rodar
 
@@ -101,6 +101,22 @@ e recria o arquivo com os valores padrão.
   aparecem no overlay.
 - **Retirado / vendido** marca o pedido e abre o Log do Capitão pré-preenchido (tipo Refino).
 
+## Frota
+
+- Estatísticas das naves vindas da **Star Citizen Wiki** (dados extraídos do jogo, com o
+  **loadout de fábrica**): DPS do piloto e das torretas, armas, mísseis, escudo, casco, armadura,
+  velocidade, quantum, carga, tripulação, seguro e preço no jogo (com onde comprar, via UEX).
+  O Hub baixa uma vez por dia e guarda no cache; **Atualizar dados das naves** força na hora.
+- **Hangar**: cadastre as naves que você tem, com apelido, origem (comprada no jogo, pledge,
+  seguro vitalício…) e notas. Selecionar uma nave mostra a ficha completa ao lado.
+- **★ Usar como nave ativa**: o Comércio passa a usar essa nave (e a carga dela) e, se for de
+  mineração (Prospector, MOLE, Golem), a Mineração troca para ela com o loadout padrão.
+  Naves sem carga (caças, Prospector) não mudam a nave do Comércio.
+- **Comparador**: até 4 naves lado a lado (qualquer nave, não só as do hangar), com o melhor
+  valor de cada linha em verde. No hangar, selecione várias (Ctrl+clique) e clique em
+  **Comparar selecionadas**.
+- Ainda não dá para trocar armas e componentes (editar o loadout).
+
 ## Log do Capitão
 
 - Aba própria (fora do overlay) para registrar as viagens realizadas e fazer anotações livres.
@@ -117,7 +133,7 @@ main.py                 ponto de entrada
 beto_hub/
   app.py                orquestra a inicialização e o encerramento
   core/                 config, logs, banco, eventos, tarefas, atalhos, plugins
-  services/             cliente HTTP, cache da API, cliente UEX e OCR
+  services/             cliente HTTP, cache da API, clientes UEX e Star Citizen Wiki, OCR
   ui/                   janela principal, overlay, configurações, tema
 plugins/<id>/           um módulo por pasta: manifest.toml + plugin.py
 tests/                  testes com pytest

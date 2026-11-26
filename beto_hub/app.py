@@ -29,8 +29,9 @@ from .core.plugin_base import HubContext, Manifesto
 from .core.plugin_loader import OK, CarregadorPlugins, PluginCarregado
 from .core.workers import GerenciadorTarefas
 from .services.api_cache import MIGRACOES_NUCLEO, CacheAPI
-from .services.http_client import ClienteHTTP
+from .services.http_client import ClienteHTTP, LimitadorTaxa
 from .services.uex_api import ClienteUEX
+from .services.wiki_api import ClienteWiki
 from .ui.main_window import JanelaPrincipal
 from .ui.overlay import JanelaOverlay
 from .ui.settings_dialog import DialogoConfiguracoes
@@ -118,6 +119,7 @@ class HubApp(QObject):
         self.servicos: dict = {
             "cache": self.cache_api,
             "uex": ClienteUEX(ClienteHTTP(), self.cache_api, self.config.obter),
+            "wiki": ClienteWiki(ClienteHTTP(LimitadorTaxa(30), timeout=40.0), self.cache_api),
         }
 
         # 5) overlay e bandeja

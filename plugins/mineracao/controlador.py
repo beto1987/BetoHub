@@ -15,6 +15,7 @@ from typing import Any
 from PySide6.QtCore import QObject, QTimer, Signal
 
 from beto_hub.core.plugin_base import HubContext
+from beto_hub.core.texto import chave_nome
 
 from .logica.identificacao import carregar_assinaturas, identificar
 from .logica.importacao import importar
@@ -67,6 +68,7 @@ class ControladorMineracao(QObject):
     ativoAlterado = Signal(bool)
     pulso = Signal()                # scan rodando (pisca o indicador)
     opcoesAlteradas = Signal()      # loadout/áreas/ajustes mudaram
+    loadoutTrocado = Signal()       # nave trocada de fora (nave ativa da Frota)
     refinoAtualizado = Signal()
     _da_thread = Signal(str, object)
 
@@ -87,6 +89,8 @@ class ControladorMineracao(QObject):
         self.thread = ThreadScanner(dict(self.opcoes), self.assinaturas, self._da_thread.emit)
         self.thread.ativo = bool(self.opcoes["ativo"])
         self.thread.start()
+
+        ctx.eventos.assinar("frota.nave_ativa", self._ao_nave_ativa)
 
         self.carregar_refino()
         self._timer_refino = QTimer(self, interval=6 * 3600 * 1000)
@@ -113,6 +117,19 @@ class ControladorMineracao(QObject):
     def salvar_loadout(self, lo: dict[str, Any]) -> None:
         self.atualizar_opcoes({"loadout": self.dados.normalizar(lo)})
         self.rochaNova.emit()  # recalcula a quebra com a nave nova
+
+    def _ao_nave_ativa(self, dados: dict[str, Any]) -> None:
+        """Nave ativa escolhida na Frota: se for de mineração, troca para ela (loadout de fábrica).
+
+        Se a nave já é a mesma, mantém as cabeças e módulos que você configurou.
+        """
+        chaves = set(dados.get("chaves") or [])
+        nave = next((n for n in self.dados.naves if chave_nome(n) in chaves), None)
+        if nave is None or nave == self.loadout["ship"]:
+            return
+        self.log.info("Nave ativa da Frota: mineração passa a usar %s", nave)
+        self.salvar_loadout(self.dados.loadout_padrao(nave))
+        self.loadoutTrocado.emit()
 
     @property
     def loadout(self) -> dict[str, Any]:

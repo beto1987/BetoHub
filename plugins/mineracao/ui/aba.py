@@ -65,6 +65,7 @@ class AbaMineracao(QWidget):
         c.rochaNova.connect(self._atualizar_leituras)
         c.refinoAtualizado.connect(self._atualizar_leituras)
         c.opcoesAlteradas.connect(self._atualizar_areas)
+        c.loadoutTrocado.connect(lambda: self.editor.definir(self.c.loadout))
         self._ao_ativo(c.ativo)
         self._ao_status(*c.ultimo_status)
         self._atualizar_areas()
