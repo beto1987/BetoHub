@@ -35,7 +35,7 @@ class _BarraTitulo(QFrame):
         self._overlay = overlay
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 2, 2, 2)
-        titulo = QLabel("◈ BETO HUB")
+        titulo = QLabel("◈ STARHUB")
         titulo.setObjectName("OverlayTitulo")
         layout.addWidget(titulo)
         layout.addStretch(1)
@@ -66,7 +66,7 @@ class JanelaOverlay(QWidget):
         super().__init__(None)
         self.config = config
         self._ids_abas: list[str] = []
-        self.setWindowTitle("Beto Hub — Overlay")
+        self.setWindowTitle("StarHub — Overlay")
         self.setWindowFlags(
             Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool | Qt.WindowDoesNotAcceptFocus
         )

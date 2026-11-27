@@ -85,3 +85,23 @@ def test_arquivo_de_traducao_completo(codigo):
     assert not sobrando, f"{codigo}: {len(sobrando)} chaves que o código não usa mais, ex.: {sobrando[:5]}"
     assert not vazias, f"{codigo}: traduções vazias: {vazias[:5]}"
     assert not campos_errados, f"{codigo}: campos {{...}} diferentes do original: {campos_errados[:5]}"
+
+
+def test_idioma_do_instalador_vale_uma_vez(tmp_path):
+    programa, config = tmp_path / "programa", tmp_path / "config.toml"
+    programa.mkdir()
+    assert i18n.escolher_idioma(config, programa) == ("pt-BR", None)          # sem config nem instalador
+    (programa / i18n.ARQUIVO_INSTALACAO).write_text("fr\n", encoding="utf-8")
+    codigo, pendente = i18n.escolher_idioma(config, programa)
+    assert codigo == "fr" and pendente[0] == "fr"                             # instalação nova: vale o instalador
+    config.write_text(f'[geral]\nidioma = "it"\nidioma_instalador = "{pendente[1]}"\n', encoding="utf-8")
+    assert i18n.escolher_idioma(config, programa) == ("it", None)             # já aplicado: vale o config
+    (programa / i18n.ARQUIVO_INSTALACAO).write_text("xx", encoding="utf-8")
+    assert i18n.escolher_idioma(config, programa) == ("it", None)             # código inválido: ignora
+
+
+def test_config_com_bom(tmp_path):
+    arq = tmp_path / "config.toml"
+    arq.write_text('[geral]\nidioma = "es"\n', encoding="utf-8-sig")   # Bloco de Notas antigo / PowerShell
+    assert i18n.idioma_do_config(arq) == "es"
+    assert i18n.escolher_idioma(arq, tmp_path)[0] == "es"

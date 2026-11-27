@@ -1,1 +1,1 @@
-"""Módulo Refino do Beto Hub."""
+"""Módulo Refino do StarHub."""

@@ -41,7 +41,7 @@ class DialogoConfiguracoes(QDialog):
         super().__init__(parent)
         self.hub = hub
         self.cfg = hub.config
-        self.setWindowTitle(tr("Configurações — Beto Hub"))
+        self.setWindowTitle(tr("Configurações — StarHub"))
         self.setMinimumSize(640, 520)
 
         # Valores do overlay antes de abrir, para desfazer a prévia ao cancelar

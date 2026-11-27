@@ -1,4 +1,4 @@
-"""Orquestrador do Beto Hub: monta tudo na ordem certa e encerra com segurança.
+"""Orquestrador do StarHub: monta tudo na ordem certa e encerra com segurança.
 
 Ordem de inicialização:
  1. pastas e logs
@@ -73,6 +73,8 @@ class HubApp(QObject):
         paths.garantir_pastas()
         self.log = configurar_logs(paths.pasta_logs())
         self.log.info("=== %s v%s iniciando (Python %s) ===", NOME_APP, __version__, sys.version.split()[0])
+        for copia in paths.MIGRADAS:
+            self.log.info("Dados do Beto Hub copiados: %s", copia)
 
         # 2) Qt
         self.qt = QApplication(argv)
@@ -88,7 +90,7 @@ class HubApp(QObject):
         # Números e datas dos campos do Qt (spinbox, data) no padrão do idioma
         QLocale.setDefault(QLocale(i18n.LOCALES_QT.get(i18n.idioma(), "pt_BR")))
         self.log.info("Idioma da interface: %s", i18n.idioma())
-        self._trava = QLockFile(str(paths.pasta_dados() / "betohub.lock"))
+        self._trava = QLockFile(str(paths.pasta_dados() / "starhub.lock"))
         self._trava.setStaleLockTime(0)  # sem prazo; trava de processo que morreu é detectada pelo PID
 
         self._encerrando = False
@@ -99,7 +101,7 @@ class HubApp(QObject):
     # ================================================================ início
     def executar(self) -> int:
         if not self._trava.tryLock(200):
-            QMessageBox.information(None, NOME_APP, tr("O Beto Hub já está aberto (veja a bandeja do Windows)."))
+            QMessageBox.information(None, NOME_APP, tr("O StarHub já está aberto (veja a bandeja do Windows)."))
             self.log.warning("Segunda instância bloqueada")
             return 0
 
@@ -117,6 +119,10 @@ class HubApp(QObject):
     def _montar(self) -> None:
         # 3) configuração + tema
         self.config = GerenciadorConfig(paths.arquivo_config())
+        if i18n.PENDENTE_DA_INSTALACAO:  # idioma escolhido no instalador: salva uma vez
+            codigo, marca = i18n.PENDENTE_DA_INSTALACAO
+            self.config.atualizar({"geral.idioma": codigo, "geral.idioma_instalador": marca}, silencioso=True)
+            self.log.info("Idioma escolhido no instalador: %s", codigo)
         definir_nivel(self.config.obter("geral.nivel_log", "INFO"))
         aplicar_tema(self.qt)
         self._filtro_dicas = instalar_dicas_discretas(self.qt)  # dicas somem ao clicar e voltam ao sair
@@ -195,7 +201,7 @@ class HubApp(QObject):
         self.bandeja = QSystemTrayIcon(self.qt.windowIcon(), self)
         self.bandeja.setToolTip(NOME_APP)
         menu = QMenu()
-        menu.addAction(tr("Abrir Beto Hub"), self.mostrar_janela)
+        menu.addAction(tr("Abrir StarHub"), self.mostrar_janela)
         menu.addAction(tr("Mostrar/esconder overlay"), self.alternar_overlay)
         self.acao_bandeja_clique = QAction(tr("Overlay: clique atravessa"), menu, checkable=True)
         self.acao_bandeja_clique.triggered.connect(lambda *_: self.alternar_clique_atravessa())

@@ -27,7 +27,7 @@ log = obter_logger("config")
 
 CONFIG_PADRAO = """\
 # =====================================================================
-#  Star Citizen Beto Hub - arquivo de configuração
+#  StarHub - arquivo de configuração
 #  Pode editar aqui com o app FECHADO, ou usar a tela Configurações.
 #  Linhas que começam com # são comentários.
 # =====================================================================
@@ -134,7 +134,8 @@ class GerenciadorConfig(QObject):
             return padrao
 
         try:
-            doc = tomlkit.parse(self.caminho.read_text(encoding="utf-8"))
+            # utf-8-sig: aceita o arquivo salvo com BOM (Bloco de Notas antigo, PowerShell)
+            doc = tomlkit.parse(self.caminho.read_text(encoding="utf-8-sig"))
         except Exception as erro:  # TOML inválido, encoding errado etc.
             carimbo = time.strftime("%Y%m%d-%H%M%S")
             backup = self.caminho.with_name(f"config.toml.corrompido-{carimbo}")

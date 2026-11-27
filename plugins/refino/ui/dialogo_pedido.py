@@ -89,7 +89,7 @@ class DialogoPedido(QDialog):
         self.pedido: Pedido | None = None
         self._estimativas: list[Estimativa] = []
         self._valores_editados = False
-        self.setWindowTitle(tr("Novo pedido de refino — Beto Hub"))
+        self.setWindowTitle(tr("Novo pedido de refino — StarHub"))
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
         self.setMinimumSize(780, 640)
 

@@ -1,1 +1,1 @@
-"""Módulo Contratos do Beto Hub."""
+"""Módulo Contratos do StarHub."""

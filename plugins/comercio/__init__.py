@@ -1,1 +1,1 @@
-"""Módulo Comércio do Beto Hub."""
+"""Módulo Comércio do StarHub."""

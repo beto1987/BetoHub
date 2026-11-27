@@ -1,12 +1,25 @@
-# Star Citizen Beto Hub
+# StarHub
 
 App desktop modular de apoio ao Star Citizen (Windows, Python 3.13, PySide6).
-Só lê a tela e APIs da comunidade: **não modifica arquivos do jogo nem injeta código**.
+Só lê a tela, o `Game.log` e APIs da comunidade: **não modifica arquivos do jogo nem injeta código**.
 
-> Estado atual: **etapa 7**. Todos os módulos estão prontos: **Comércio**, **Mineração**,
-> **Contratos**, **Refino**, **Frota** e **Log do Capitão**.
+> **Versão 1.0.0.** Módulos: **Comércio**, **Mineração**, **Contratos**, **Refino**, **Frota** e
+> **Log do Capitão**, em português, inglês, espanhol, francês e italiano.
+> Até a 0.x o app se chamava **Beto Hub**: na primeira abertura, o StarHub copia os seus dados
+> das pastas `BetoHub` (que ficam como backup).
 
-## Instalar e rodar
+## Instalar (para jogar)
+
+1. Rode **`StarHub-1.0.0-Setup.exe`**. Não precisa de administrador: instala em
+   `%LOCALAPPDATA%\Programs\StarHub` (ou, se você escolher, para todos os usuários).
+2. Escolha o idioma do instalador e, numa página própria, o **idioma do aplicativo**.
+3. Para desinstalar: Configurações do Windows › Aplicativos › StarHub. Seus dados
+   (`%APPDATA%\StarHub` e `%LOCALAPPDATA%\StarHub`) ficam guardados.
+
+Enquanto o instalador não tiver assinatura digital, o Windows pode mostrar **"O Windows
+protegeu o computador"** (SmartScreen): clique em **Mais informações › Executar assim mesmo**.
+
+## Rodar pelo código-fonte (para desenvolver)
 
 1. Instale o **Python 3.13** (python.org), marcando "Add python.exe to PATH".
 2. Dê dois cliques em **`instalar.bat`**. Ele cria a pasta `.venv` e instala as dependências.
@@ -21,14 +34,29 @@ py -3.13 -m venv .venv
 .venv\Scripts\python main.py
 ```
 
+## Gerar o instalador
+
+Precisa do **Inno Setup 6** (`winget install JRSoftware.InnoSetup`) e do PyInstaller (já no
+`requirements.txt`). Depois:
+
+```bat
+powershell -ExecutionPolicy Bypass -File instalador\compilar.ps1
+```
+
+O script roda os testes, compila com o PyInstaller (`instalador\starhub.spec`), monta o
+instalador (`instalador\starhub.iss`) e mostra o SHA-256. O resultado fica em
+`build\instalador\StarHub-<versão>-Setup.exe`. Com um certificado de assinatura de código
+configurado (veja o início do `compilar.ps1`), o programa, o instalador e o desinstalador saem
+assinados. Ao mudar a versão, atualize `beto_hub/__init__.py` e `instalador/versao_exe.txt`.
+
 ## Onde ficam as coisas
 
 | O quê | Onde |
 |---|---|
-| Configuração editável | `%APPDATA%\BetoHub\config.toml` |
-| Banco SQLite | `%LOCALAPPDATA%\BetoHub\hub.db` |
-| Logs (rotativos, 5 × 2 MB) | `%LOCALAPPDATA%\BetoHub\logs\betohub.log` |
-| Dados de cada módulo | `%LOCALAPPDATA%\BetoHub\modulos\<id>\` |
+| Configuração editável | `%APPDATA%\StarHub\config.toml` |
+| Banco SQLite | `%LOCALAPPDATA%\StarHub\hub.db` |
+| Logs (rotativos, 5 × 2 MB) | `%LOCALAPPDATA%\StarHub\logs\starhub.log` |
+| Dados de cada módulo | `%LOCALAPPDATA%\StarHub\modulos\<id>\` |
 
 O `config.toml` tem comentários explicando cada opção. Para editar à mão, feche o Hub antes.
 Se o arquivo tiver algum erro, o Hub guarda uma cópia como `config.toml.corrompido-<data>`

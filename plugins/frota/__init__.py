@@ -1,1 +1,1 @@
-"""Módulo Frota do Beto Hub."""
+"""Módulo Frota do StarHub."""

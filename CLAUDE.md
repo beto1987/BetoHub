@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Star Citizen Beto Hub: a modular Windows desktop helper for Star Citizen (Python 3.13, PySide6). It only reads the screen (OCR), the game's own `Game.log` text file, and community APIs (UEX Corp API 2.0 and the Star Citizen Wiki API). It never modifies game files or injects code. Global hotkeys poll `GetAsyncKeyState` every 25 ms and use no keyboard hook. Keep it that way.
+StarHub (called Beto Hub until 0.x) is a modular Windows desktop helper for Star Citizen (Python 3.13, PySide6). It only reads the screen (OCR), the game's own `Game.log` text file, and community APIs (UEX Corp API 2.0 and the Star Citizen Wiki API). It never modifies game files or injects code. Global hotkeys poll `GetAsyncKeyState` every 25 ms and use no keyboard hook. Keep it that way.
 
 The code, identifiers, comments, UI strings and user docs (`LEIA-ME.md`) are in **Brazilian Portuguese**. Follow that convention: `controlador`, `logica`, `aba`, `migracoes`, `publicar`/`assinar` and so on.
 
@@ -30,12 +30,20 @@ All commands use the project venv in `.venv` (created by `instalar.bat`).
 .venv\Scripts\python -m pip install -r requirements.txt
 ```
 
+Build the Windows installer with `powershell -ExecutionPolicy Bypass -File instalador\compilar.ps1`. It runs the tests, builds with PyInstaller (`instalador/starhub.spec`, onedir, no UPX), builds the installer with Inno Setup 6 (`instalador/starhub.iss`), and writes `build\instalador\StarHub-<version>-Setup.exe`. Code signing turns on when `STARHUB_CERT_PFX`/`STARHUB_CERT_SENHA` or `STARHUB_CERT_THUMBPRINT` is set.
+- Plugins ship as plain files in `_internal/plugins` and are imported at runtime. When a plugin starts using a new library or stdlib module, add it to `hiddenimports` in the spec.
+- The `.iss` and `.ps1` files must stay UTF-8 **with BOM**, or Inno Setup and PowerShell 5.1 garble accented text.
+- When bumping the version, update `beto_hub/__init__.py` and `instalador/versao_exe.txt`.
+- The installer writes `{app}\idioma_instalacao.txt`. `i18n.escolher_idioma` applies it once per (re)install, tracked by its mtime in `geral.idioma_instalador`.
+
 There is no linter or formatter configured. `tests/conftest.py` puts the repo root on `sys.path`, so tests import `beto_hub.*` and `plugins.*` directly.
 
 ## User data locations (outside the repo)
 
-- Config: `%APPDATA%\BetoHub\config.toml`. It is edited with `tomlkit`, which preserves comments. Missing defaults are merged in. A broken file is backed up as `config.toml.corrompido-<date>` and recreated.
-- SQLite DB: `%LOCALAPPDATA%\BetoHub\hub.db`. Logs: `%LOCALAPPDATA%\BetoHub\logs\betohub.log`. Per-module data: `%LOCALAPPDATA%\BetoHub\modulos\<id>\`.
+- Config: `%APPDATA%\StarHub\config.toml`. It is edited with `tomlkit`, which preserves comments. Missing defaults are merged in. A broken file is backed up as `config.toml.corrompido-<date>` and recreated.
+- SQLite DB: `%LOCALAPPDATA%\StarHub\hub.db`. Logs: `%LOCALAPPDATA%\StarHub\logs\starhub.log`. Per-module data: `%LOCALAPPDATA%\StarHub\modulos\<id>\`.
+- `main.py` calls `paths.migrar_pastas_antigas()` before anything reads the config. It copies the old `BetoHub` folders to `StarHub` once and keeps the old folders as a backup.
+- The internal package is still named `beto_hub`, and the root logger is still `betohub`. Only user-visible names changed.
 - `beto_hub/core/paths.py` resolves all of these. It also handles a PyInstaller-frozen build through `sys._MEIPASS`.
 
 ## Architecture

@@ -63,7 +63,7 @@ class JanelaPrincipal(QMainWindow):
         textos.setSpacing(0)
         sub = QLabel("STAR CITIZEN")
         sub.setObjectName("CabecalhoSubtitulo")
-        titulo = QLabel("BETO HUB")
+        titulo = QLabel("STARHUB")
         titulo.setObjectName("CabecalhoTitulo")
         textos.addWidget(sub)
         textos.addWidget(titulo)

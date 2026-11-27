@@ -8,5 +8,6 @@ Pillow>=10        # tratamento de imagem
 winocr>=0.0.15    # OCR do próprio Windows (recomendado)
 # pytesseract     # opcional: só se quiser usar o Tesseract no lugar do OCR do Windows
 
-# Desenvolvimento / testes
+# Desenvolvimento / testes / instalador
 pytest>=8
+pyinstaller>=6.10  # gera o StarHub.exe (instalador\compilar.ps1)

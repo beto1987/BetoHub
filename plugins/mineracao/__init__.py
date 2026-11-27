@@ -1,1 +1,1 @@
-"""Módulo Mineração do Beto Hub."""
+"""Módulo Mineração do StarHub."""

@@ -126,15 +126,49 @@ def campos_do_texto(texto: str) -> set[str]:
 def idioma_do_config(arquivo: Path) -> str:
     """Lê [geral] idioma do config.toml sem depender do resto do app."""
     try:
-        with open(arquivo, "rb") as f:
-            return str(tomllib.load(f).get("geral", {}).get("idioma", PADRAO))
-    except (OSError, tomllib.TOMLDecodeError):
+        texto = Path(arquivo).read_text(encoding="utf-8-sig")  # aceita BOM
+        return str(tomllib.loads(texto).get("geral", {}).get("idioma", PADRAO))
+    except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError):
         return PADRAO
 
 
+ARQUIVO_INSTALACAO = "idioma_instalacao.txt"  # gravado pelo instalador na pasta do programa
+# Idioma escolhido no instalador que ainda não foi salvo no config: (código, marca). O app salva ao abrir.
+PENDENTE_DA_INSTALACAO: tuple[str, str] | None = None
+
+
+def idioma_da_instalacao(pasta: Path) -> tuple[str, str] | None:
+    """(código, marca) do idioma escolhido no instalador; a marca muda a cada (re)instalação."""
+    arquivo = pasta / ARQUIVO_INSTALACAO
+    try:
+        codigo = arquivo.read_text(encoding="utf-8-sig").strip()
+        marca = str(int(arquivo.stat().st_mtime))
+    except OSError:
+        return None
+    return (codigo, marca) if codigo in IDIOMAS else None
+
+
+def escolher_idioma(config: Path, pasta_programa: Path) -> tuple[str, tuple[str, str] | None]:
+    """Idioma a usar e, se for o caso, o idioma da instalação que precisa ser salvo no config.
+
+    O instalador vence uma vez (instalação nova ou reinstalação, reconhecida pela marca);
+    depois vale o que o jogador escolher nas Configurações.
+    """
+    try:
+        geral = tomllib.loads(Path(config).read_text(encoding="utf-8-sig")).get("geral", {})  # aceita BOM
+    except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError):
+        geral = {}
+    instalacao = idioma_da_instalacao(pasta_programa)
+    if instalacao and str(geral.get("idioma_instalador", "")) != instalacao[1]:
+        return instalacao[0], instalacao
+    return str(geral.get("idioma", PADRAO)), None
+
+
 def _iniciar() -> None:
-    from .paths import arquivo_config  # import tardio: paths não depende de i18n
-    definir_idioma(idioma_do_config(arquivo_config()))
+    global PENDENTE_DA_INSTALACAO
+    from .paths import arquivo_config, raiz_programa  # import tardio: paths não depende de i18n
+    codigo, PENDENTE_DA_INSTALACAO = escolher_idioma(arquivo_config(), raiz_programa())
+    definir_idioma(codigo)
 
 
 _iniciar()

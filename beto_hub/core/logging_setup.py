@@ -27,9 +27,9 @@ def configurar_logs(pasta_logs: Path, nivel: str = "INFO") -> logging.Logger:
     pasta_logs.mkdir(parents=True, exist_ok=True)
     formato = logging.Formatter(_FORMATO, datefmt="%Y-%m-%d %H:%M:%S")
 
-    # 2 MB por arquivo, guarda os 5 últimos (betohub.log.1 ... .5)
+    # 2 MB por arquivo, guarda os 5 últimos (starhub.log.1 ... .5)
     arquivo = RotatingFileHandler(
-        pasta_logs / "betohub.log", maxBytes=2_000_000, backupCount=5, encoding="utf-8"
+        pasta_logs / "starhub.log", maxBytes=2_000_000, backupCount=5, encoding="utf-8"
     )
     arquivo.setFormatter(formato)
     logger.addHandler(arquivo)

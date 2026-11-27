@@ -1,4 +1,4 @@
-"""Contrato que todo módulo (plugin) do Beto Hub implementa.
+"""Contrato que todo módulo (plugin) do StarHub implementa.
 
 Estrutura mínima de um plugin:
 

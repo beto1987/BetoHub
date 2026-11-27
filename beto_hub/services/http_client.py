@@ -67,7 +67,7 @@ class ClienteHTTP:
                    cabecalhos: dict[str, str] | None = None) -> Any:
         if params:
             url = f"{url}?{urllib.parse.urlencode(params)}"
-        cab = {"User-Agent": f"StarCitizenBetoHub/{__version__}", "Accept": "application/json"}
+        cab = {"User-Agent": f"StarHub/{__version__}", "Accept": "application/json"}
         cab.update(cabecalhos or {})
 
         ultimo_erro: ErroHTTP | None = None

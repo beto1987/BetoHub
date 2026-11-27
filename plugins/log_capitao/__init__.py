@@ -1,1 +1,1 @@
-"""Módulo Log do Capitão do Beto Hub."""
+"""Módulo Log do Capitão do StarHub."""

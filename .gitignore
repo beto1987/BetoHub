@@ -16,6 +16,7 @@ htmlcov/
 build/
 dist/
 *.spec
+!instalador/starhub.spec
 
 # Claude Code (configurações locais)
 .claude/settings.local.json
