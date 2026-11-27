@@ -36,6 +36,7 @@ from .ui.main_window import JanelaPrincipal
 from .ui.overlay import JanelaOverlay
 from .ui.settings_dialog import DialogoConfiguracoes
 from .ui.theme import CORES, aplicar_tema
+from .ui.widgets.campos import instalar_dicas_discretas
 
 # Atalhos globais: nome lógico -> (chave da combinação, chave do liga/desliga) no config
 ATALHO_OVERLAY = "overlay"
@@ -108,6 +109,7 @@ class HubApp(QObject):
         self.config = GerenciadorConfig(paths.arquivo_config())
         definir_nivel(self.config.obter("geral.nivel_log", "INFO"))
         aplicar_tema(self.qt)
+        self._filtro_dicas = instalar_dicas_discretas(self.qt)  # dicas somem ao clicar e voltam ao sair
 
         # 4) serviços do núcleo
         self.banco = BancoDados(paths.arquivo_banco())

@@ -86,3 +86,7 @@ There is no linter or formatter configured. `tests/conftest.py` puts the repo ro
 - `overlay.py` is a single always-on-top window with one tab per plugin panel, opacity control and a "clique atravessa" (click-through) mode.
 - `settings_dialog.py` includes the plugin config panels and hotkey capture.
 - The theme is in `theme/scifi.qss`, with the `CORES` palette in `theme/__init__.py`.
+- `widgets/campos.py` installs an app-wide focus filter (`FiltroDicas`). It hides hint texts while a field has focus and restores them when the user leaves without typing, so no field needs its own handling. It covers:
+  - `placeholderText` in line edits and plain-text edits.
+  - Editable combos whose current item is a hint option: empty data (`None`, `""` or `0`) and text starting with `—` or `(`, such as `"— nenhuma —"`. Follow that convention for new "nothing selected" options.
+  - Spin boxes. A `specialValueText` at the minimum ("não informada") is cleared and restored. Other values are selected on focus, so typing replaces the `0`.
