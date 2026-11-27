@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QFrame, QHBoxLayout, QLabel, QSizeGrip, QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core.i18n import tr
 from ..core.config import GerenciadorConfig
 from ..core.logging_setup import obter_logger
 from .widgets import PainelEmConstrucao
@@ -39,15 +40,15 @@ class _BarraTitulo(QFrame):
         layout.addWidget(titulo)
         layout.addStretch(1)
         # Aviso de modo: aparece quando os cliques estão atravessando para o jogo
-        self.aviso_clique = QLabel("⇣ CLIQUE ATRAVESSA")
+        self.aviso_clique = QLabel("⇣ " + tr("CLIQUE ATRAVESSA"))
         self.aviso_clique.setObjectName("OverlayAvisoClique")
-        self.aviso_clique.setToolTip("Os cliques estão indo para o jogo. Use o atalho para voltar.")
+        self.aviso_clique.setToolTip(tr("Os cliques estão indo para o jogo. Use o atalho para voltar."))
         self.aviso_clique.hide()
         layout.addWidget(self.aviso_clique)
         fechar = QToolButton()
         fechar.setObjectName("BotaoBarra")
         fechar.setText("✕")
-        fechar.setToolTip("Esconder overlay")
+        fechar.setToolTip(tr("Esconder overlay"))
         fechar.clicked.connect(overlay.hide)
         layout.addWidget(fechar)
 
@@ -113,7 +114,7 @@ class JanelaOverlay(QWidget):
         """Chamado depois de todos os plugins: placeholder + restaura a última aba."""
         if self.abas.count() == 0:
             self.adicionar_painel("", "Hub", PainelEmConstrucao(
-                "Overlay", "Nenhum módulo tem painel de overlay ainda.", compacto=True
+                "Overlay", tr("Nenhum módulo tem painel de overlay ainda."), compacto=True
             ))
         ultima = self.config.obter("overlay.aba", "")
         if ultima in self._ids_abas:

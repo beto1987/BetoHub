@@ -129,13 +129,13 @@ QSlider::handle:horizontal {
 /* ---------- Agrupadores, listas, tabelas ---------- */
 QGroupBox {
     border: 1px solid {{borda}};
-    margin-top: 14px;
+    margin-top: 18px;
     padding: 10px 8px 8px 8px;
 }
 QGroupBox::title {
     subcontrol-origin: margin;
     left: 10px;
-    padding: 0 4px;
+    padding: 3px 4px 0 4px;  /* espaço para acentos em maiúsculas (Á, É, Ê) */
     color: {{acento}};
     letter-spacing: 2px;
 }

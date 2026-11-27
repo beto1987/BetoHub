@@ -1,18 +1,20 @@
-"""Formatação de números no padrão brasileiro (1.234.567,89)."""
+"""Formatação de números no padrão do idioma da interface (1.234.567,89 em português)."""
 
 from __future__ import annotations
+
+from beto_hub.core import i18n
 
 
 def inteiro(valor: float | None) -> str:
     if valor is None:
         return "—"
-    return f"{valor:,.0f}".replace(",", ".")
+    return i18n.numero(valor)
 
 
 def decimal(valor: float | None, casas: int = 1) -> str:
     if valor is None:
         return "—"
-    return f"{valor:,.{casas}f}".replace(",", "§").replace(".", ",").replace("§", ".")
+    return i18n.numero(valor, casas)
 
 
 def aUEC(valor: float | None) -> str:

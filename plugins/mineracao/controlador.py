@@ -14,6 +14,7 @@ from typing import Any
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
+from beto_hub.core.i18n import tr
 from beto_hub.core.plugin_base import HubContext
 from beto_hub.core.texto import chave_nome
 
@@ -80,7 +81,7 @@ class ControladorMineracao(QObject):
         self.dados = DadosMineracao(PASTA_DADOS / "mining_data.json")
         self.refino = TabelaRefino.de_arquivo(PASTA_DADOS / "refineries_reserva.json")
         self.rocha: dict[str, Any] | None = None
-        self.ultimo_status: tuple[str, str] = ("Iniciando…", "ajuda")
+        self.ultimo_status: tuple[str, str] = (tr("Iniciando…"), "ajuda")
 
         self._importar_scanner_antigo()
         self.opcoes = self._ler_opcoes()
@@ -226,15 +227,15 @@ class ControladorMineracao(QObject):
                         c = cands[0]
                         partes.append(f"{valor} = {c['count']}× {c['sig']['name']}")
                     else:
-                        partes.append(f"{valor} = desconhecido")
-                resumo = "; ".join(partes) or "nenhum número reconhecido"
+                        partes.append(f"{valor} = " + tr("desconhecido"))
+                resumo = "; ".join(partes) or tr("nenhum número reconhecido")
             else:
                 info = leitor.ler_rocha(img)
                 processada = preprocessar(img, op)
                 resumo = (", ".join(f"{k}={v}" for k, v in info.items())
-                          if info else "massa e resistência não reconhecidas")
+                          if info else tr("massa e resistência não reconhecidas"))
             return {"bruta": img, "processada": processada, "diagnostico": leitor.diagnostico,
-                    "resumo": resumo, "motor": f"{motor.motor} ({motor.idioma or 'padrão'})"}
+                    "resumo": resumo, "motor": f"{motor.motor} ({motor.idioma or tr('padrão')})"}
         finally:
             motor.fechar()
 
@@ -270,7 +271,7 @@ class ControladorMineracao(QObject):
                 (str(h.get("time", "")), json.dumps(valores), json.dumps(h["results"], ensure_ascii=False)))
         if origem:
             self.log.info("Beto Scanner importado de %s (%d opções, %d leituras)", origem, len(opcoes), len(historico))
-            self.ctx.notificar("Mineração", f"Configurações do Beto Scanner importadas de {origem}.")
+            self.ctx.notificar(tr("Mineração"), tr("Configurações do Beto Scanner importadas de {origem}.", origem=origem))
 
     # ================================================================ encerramento
     def parar(self) -> None:

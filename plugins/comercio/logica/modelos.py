@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from beto_hub.core.i18n import N_
+
 
 def _int(v: Any, padrao: int = 0) -> int:
     try:
@@ -53,10 +55,10 @@ class Terminal:
     @property
     def tipo_local(self) -> str:
         if self.eh_estacao:
-            return "estação"
+            return N_("estação")
         if self.eh_outpost:
-            return "outpost"
-        return "superfície"
+            return N_("outpost")
+        return N_("superfície")
 
     @classmethod
     def de_uex(cls, d: dict[str, Any]) -> "Terminal":

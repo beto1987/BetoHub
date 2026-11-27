@@ -11,6 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from beto_hub.core.i18n import tr
+
 # Modificadores do RegisterHotKey (WinUser.h)
 MOD_ALT = 0x0001
 MOD_CONTROL = 0x0002
@@ -75,7 +77,7 @@ def formatar(modificadores: int, vk: int) -> str:
     partes = [nome for bit, nome in _ORDEM_MODS if modificadores & bit]
     nome = nome_tecla(vk)
     if nome is None:
-        raise ValueError(f"Tecla não suportada (código {vk:#04x}).")
+        raise ValueError(tr("Tecla não suportada (código {codigo}).", codigo=f"{vk:#04x}"))
     partes.append(nome)
     return "+".join(partes)
 
@@ -83,7 +85,7 @@ def formatar(modificadores: int, vk: int) -> str:
 def interpretar(texto: str) -> Atalho:
     """Converte "ctrl + shift + f10" em Atalho. Lança ValueError com mensagem amigável."""
     if not texto or not texto.strip():
-        raise ValueError("Atalho vazio.")
+        raise ValueError(tr("Atalho vazio."))
     # Trata "Num+" (o + faz parte do nome da tecla)
     bruto = texto.replace(" ", "")
     tokens: list[str] = []
@@ -93,7 +95,7 @@ def interpretar(texto: str) -> Atalho:
         elif parte:
             tokens.append(parte)
         else:
-            raise ValueError(f"Atalho mal formado: '{texto}'.")
+            raise ValueError(tr("Atalho mal formado: '{texto}'.", texto=texto))
 
     mods = 0
     tecla: str | None = None
@@ -103,12 +105,12 @@ def interpretar(texto: str) -> Atalho:
             mods |= _APELIDOS_MODS[baixo]
         elif baixo in _NOME_POR_MINUSCULO:
             if tecla is not None:
-                raise ValueError("Use só uma tecla principal (além de Ctrl/Alt/Shift/Win).")
+                raise ValueError(tr("Use só uma tecla principal (além de Ctrl/Alt/Shift/Win)."))
             tecla = _NOME_POR_MINUSCULO[baixo]
         else:
-            raise ValueError(f"Tecla desconhecida: '{token}'.")
+            raise ValueError(tr("Tecla desconhecida: '{tecla}'.", tecla=token))
     if tecla is None:
-        raise ValueError("Falta a tecla principal (ex.: F10, O, Num5).")
+        raise ValueError(tr("Falta a tecla principal (ex.: F10, O, Num5)."))
     return Atalho(mods, TECLAS[tecla])
 
 

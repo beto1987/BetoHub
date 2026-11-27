@@ -26,12 +26,14 @@ import unicodedata
 from dataclasses import dataclass, field
 from typing import Any, Iterable
 
+from beto_hub.core.i18n import N_
+
 AMOSTRAS_MINIMAS = 3
 CSCU_POR_SCU = 100
 
 NIVEIS = ("refinaria", "minério", "geral")  # do mais específico para o mais genérico
-NOMES_NIVEL = {"refinaria": "desta refinaria", "minério": "deste minério em outras refinarias",
-               "geral": "deste método com outros minérios", "sem dados": "sem dados"}
+NOMES_NIVEL = {"refinaria": N_("desta refinaria"), "minério": N_("deste minério em outras refinarias"),
+               "geral": N_("deste método com outros minérios"), "sem dados": N_("sem dados")}
 
 
 # ---------------------------------------------------------------- nomes de minério

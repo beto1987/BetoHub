@@ -24,6 +24,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
 
+from beto_hub.core.i18n import tr
+
 if TYPE_CHECKING:  # só para o editor/IDE
     from PySide6.QtWidgets import QWidget
 
@@ -61,24 +63,24 @@ class Manifesto:
         """Valida o conteúdo do manifest.toml. Lança ErroManifesto com mensagem clara."""
         faltando = [c for c in ("id", "nome", "versao") if not dados.get(c)]
         if faltando:
-            raise ErroManifesto(f"manifest.toml sem os campos: {', '.join(faltando)}")
+            raise ErroManifesto(tr("manifest.toml sem os campos: {campos}", campos=", ".join(faltando)))
 
         id_ = str(dados["id"])
         if not _RE_ID.match(id_):
             raise ErroManifesto(
-                f"id inválido '{id_}': use só letras minúsculas, números e _ (começando por letra)."
+                tr("id inválido '{id}': use só letras minúsculas, números e _ (começando por letra).", id=id_)
             )
 
         try:
             ordem = int(dados.get("ordem", 100))
             api_minima = int(dados.get("api_minima", 1))
         except (TypeError, ValueError) as erro:
-            raise ErroManifesto(f"'ordem' e 'api_minima' precisam ser números inteiros ({erro}).")
+            raise ErroManifesto(tr("'ordem' e 'api_minima' precisam ser números inteiros ({erro}).", erro=erro))
 
         if api_minima > API_VERSAO:
             raise ErroManifesto(
-                f"Este módulo precisa de uma versão mais nova do Hub (contrato {api_minima}, "
-                f"o Hub tem {API_VERSAO})."
+                tr("Este módulo precisa de uma versão mais nova do Hub (contrato {minimo}, o Hub tem {atual}).",
+                   minimo=api_minima, atual=API_VERSAO)
             )
 
         return cls(

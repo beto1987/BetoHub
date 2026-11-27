@@ -8,6 +8,16 @@ Star Citizen Beto Hub: a modular Windows desktop helper for Star Citizen (Python
 
 The code, identifiers, comments, UI strings and user docs (`LEIA-ME.md`) are in **Brazilian Portuguese**. Follow that convention: `controlador`, `logica`, `aba`, `migracoes`, `publicar`/`assinar` and so on.
 
+## Translations (i18n)
+
+The UI is available in pt-BR (the source language), en-US, es, fr and it (`beto_hub/core/i18n.py`).
+- **Every user-visible string goes through `tr("texto em português", campo=valor)`.** Use named fields instead of f-strings so translators can reorder them. Log messages (`log.info` and similar) are not translated.
+- **Constants that are stored or compared stay in Portuguese.** Mark them with `N_("...")`, which records them for translation without translating, and call `tr(...)` only at display time. Examples: `NOMES_STATUS`, contract `tipo` values saved in the DB, table column names used as keys in `COL[...]`, and `PERIODOS`. Never translate a value that is saved, used as a dict key, or compared.
+- **Translations live in `beto_hub/i18n/<idioma>.json`**, keyed by the exact Portuguese text. A missing translation falls back to Portuguese.
+- **`tests/test_traducoes.py` keeps the translation files in sync.** It extracts every literal `tr()`/`N_()` key, the plugin names from `manifest.toml`, and the texts in `signatures.json`. It fails when a language misses a key, has stale keys, or uses different `{fields}`. When you add or change a UI string, add its translation to all four JSON files.
+- **Number and date formatting is language-aware.** Use `i18n.numero(v, casas)`, `i18n.data_curta(epoch)` and `i18n.formato_data_qt()`, never hard-coded `.replace(",", ".")`. The app also sets `QLocale.setDefault` and loads Qt's own `qtbase_*.qm` translations.
+- **The language is read once**, from `[geral] idioma` in config.toml, when `i18n` is imported (before any widget exists). Changing it needs a restart, which `HubApp.reiniciar()` handles. `tests/conftest.py` pins pt-BR so tests don't depend on the user's setting.
+
 ## Commands
 
 All commands use the project venv in `.venv` (created by `instalar.bat`).

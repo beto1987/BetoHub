@@ -8,6 +8,7 @@ from typing import Any
 from PySide6.QtCore import QObject, QTimer, Signal
 from PySide6.QtWidgets import QApplication
 
+from beto_hub.core.i18n import tr
 from beto_hub.core.plugin_base import HubContext
 
 from .logica.estimativas import (
@@ -44,7 +45,7 @@ class ControladorRefino(QObject):
         self.estimador: Estimador | None = None
         self.minerios: dict[str, str] = {}     # chave -> nome
         self.refinarias: dict = {}
-        self.ultimo_status = ("Carregando dados de refino da UEX…", "ajuda")
+        self.ultimo_status = (tr("Carregando dados de refino da UEX…"), "ajuda")
         self._carregando = False
 
         self._timer = QTimer(self, interval=INTERVALO_VERIFICACAO_MS)
@@ -60,7 +61,7 @@ class ControladorRefino(QObject):
         if uex is None or self._carregando:
             return
         self._carregando = True
-        self._emitir_status("Carregando dados de refino da UEX…", "ajuda")
+        self._emitir_status(tr("Carregando dados de refino da UEX…"), "ajuda")
         self.ctx.workers.executar(self._baixar, uex, forcar, ao_concluir=self._ao_baixar, ao_falhar=self._ao_falhar)
 
     @staticmethod
@@ -92,13 +93,13 @@ class ControladorRefino(QObject):
         unidade = "cSCU" if self.estimador.fator == 1 else "SCU"
         self.log.info("Refino: %d métodos, %d auditorias (em %s), %d refinarias, %d minérios",
                       len(metodos), len(auditorias), unidade, len(self.refinarias), len(self.minerios))
-        self._emitir_status(f"{len(metodos)} métodos · {len(self.refinarias)} refinarias · "
-                            f"{len(auditorias)} relatos de refino da comunidade", "ok")
+        self._emitir_status(tr("{metodos} métodos · {refinarias} refinarias · {relatos} relatos de refino da comunidade",
+                               metodos=len(metodos), refinarias=len(self.refinarias), relatos=len(auditorias)), "ok")
         self.dadosProntos.emit()
 
     def _ao_falhar(self, erro: Exception) -> None:
         self._carregando = False
-        self._emitir_status(f"Dados de refino indisponíveis: {erro}", "erro")
+        self._emitir_status(tr("Dados de refino indisponíveis: {erro}", erro=erro), "erro")
 
     def _emitir_status(self, texto: str, papel: str) -> None:
         self.ultimo_status = (texto, papel)
@@ -133,7 +134,7 @@ class ControladorRefino(QObject):
             "scu": round(refinado, 2),
             "preco_venda": round(preco, 2),
             "custo_extra": p.custo,
-            "notas": f"Método: {p.metodo}",
+            "notas": tr("Método: {metodo}", metodo=p.metodo),
         })
         self.pedidosAlterados.emit()
 
@@ -146,9 +147,9 @@ class ControladorRefino(QObject):
         if not prontos:
             return
         for p in prontos:
-            nomes = ", ".join(i.get("nome", "?") for i in p.itens) or "pedido"
-            quando = " (ficou pronto enquanto o Hub estava fechado)" if ao_abrir else ""
-            self.ctx.notificar("Refino pronto", f"{nomes} em {p.refinaria}{quando}")
+            nomes = ", ".join(i.get("nome", "?") for i in p.itens) or tr("pedido")
+            quando = " " + tr("(ficou pronto enquanto o Hub estava fechado)") if ao_abrir else ""
+            self.ctx.notificar(tr("Refino pronto"), tr("{itens} em {refinaria}", itens=nomes, refinaria=p.refinaria) + quando)
         _tocar_aviso()
         self.pedidosAlterados.emit()
 

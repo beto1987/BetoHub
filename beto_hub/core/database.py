@@ -17,6 +17,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterator, Sequence
 
+from beto_hub.core.i18n import tr
 from .logging_setup import obter_logger
 
 log = obter_logger("banco")
@@ -114,7 +115,8 @@ class BancoDados:
                     if self._con.in_transaction:
                         self._con.execute("ROLLBACK")
                     raise ErroMigracao(
-                        f"Falha na migração {numero} do módulo '{modulo}': {erro}"
+                        tr("Falha na migração {numero} do módulo '{modulo}': {erro}", numero=numero,
+                           modulo=modulo, erro=erro)
                     ) from erro
         return len(migracoes)
 

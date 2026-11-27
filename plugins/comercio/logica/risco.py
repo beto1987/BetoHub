@@ -11,6 +11,9 @@ import math
 import time
 from typing import TYPE_CHECKING
 
+from beto_hub.core import i18n
+from beto_hub.core.i18n import N_, tr
+
 if TYPE_CHECKING:
     from .modelos import Rota
 
@@ -29,7 +32,7 @@ PESO_DADOS_ANTIGOS = (   # (horas, pontos): preço reportado há muito tempo
     (72, 20), (24, 12), (6, 5),
 )
 
-NIVEIS = ((60, "alto"), (30, "médio"), (0, "baixo"))
+NIVEIS = ((60, N_("alto")), (30, N_("médio")), (0, N_("baixo")))
 SISTEMA_SEGURO = "Stanton"
 SISTEMA_SEM_LEI = "Pyro"
 
@@ -56,28 +59,28 @@ def avaliar_risco(rota: "Rota", agora: float | None = None) -> tuple[int, str, l
     inv = rota.investimento
     if inv > VALOR_BASE:
         fracao = math.log10(inv / VALOR_BASE) / math.log10(VALOR_TETO / VALOR_BASE)
-        somar(PESO_VALOR * min(1.0, fracao), f"carga de {inv:,.0f} aUEC".replace(",", "."))
+        somar(PESO_VALOR * min(1.0, fracao), tr("carga de {valor} aUEC", valor=i18n.numero(inv)))
 
     # 2) sistemas
     sistemas = {rota.origem.sistema, rota.destino.sistema} - {""}
     if SISTEMA_SEM_LEI in sistemas:
-        somar(PESO_PYRO, "passa por Pyro (sem lei)")
+        somar(PESO_PYRO, tr("passa por Pyro (sem lei)"))
     elif sistemas - {SISTEMA_SEGURO}:
-        somar(PESO_OUTRO_SISTEMA, f"fora de Stanton ({', '.join(sorted(sistemas - {SISTEMA_SEGURO}))})")
+        somar(PESO_OUTRO_SISTEMA, tr("fora de Stanton ({sistemas})", sistemas=", ".join(sorted(sistemas - {SISTEMA_SEGURO}))))
     if rota.entre_sistemas:
-        somar(PESO_ENTRE_SISTEMAS, "atravessa ponto de salto")
+        somar(PESO_ENTRE_SISTEMAS, tr("atravessa ponto de salto"))
 
     # 3) tipo de terminal
     if rota.origem.eh_nqa or rota.destino.eh_nqa:
-        somar(PESO_NQA, "terminal \"sem perguntas\" (NQA)")
+        somar(PESO_NQA, tr("terminal \"sem perguntas\" (NQA)"))
     if rota.origem.eh_jogador or rota.destino.eh_jogador:
-        somar(PESO_JOGADOR, "terminal de jogador")
+        somar(PESO_JOGADOR, tr("terminal de jogador"))
     outposts = sum(t.eh_outpost for t in (rota.origem, rota.destino))
-    somar(PESO_OUTPOST * outposts, "parada em outpost" if outposts == 1 else "origem e destino em outposts")
+    somar(PESO_OUTPOST * outposts, tr("parada em outpost") if outposts == 1 else tr("origem e destino em outposts"))
 
     # 4) distância (tempo exposto)
     if rota.distancia:
-        somar(min(PESO_DISTANCIA, rota.distancia / 5), f"{rota.distancia:.1f} Gm de viagem")
+        somar(min(PESO_DISTANCIA, rota.distancia / 5), tr("{gm} Gm de viagem", gm=i18n.numero(rota.distancia, 1)))
 
     # 5) idade dos preços (o preço pode ter mudado)
     reportes = [t for t in (rota.atualizado_origem, rota.atualizado_destino) if t]
@@ -85,8 +88,8 @@ def avaliar_risco(rota: "Rota", agora: float | None = None) -> tuple[int, str, l
         horas = (agora - min(reportes)) / 3600
         for limite_h, valor in PESO_DADOS_ANTIGOS:
             if horas >= limite_h:
-                somar(valor, f"preço reportado há {horas:.0f} h")
+                somar(valor, tr("preço reportado há {horas} h", horas=f"{horas:.0f}"))
                 break
 
     nota = int(round(min(100.0, pontos)))
-    return nota, nivel_da_nota(nota), motivos or ["nenhum fator de risco relevante"]
+    return nota, nivel_da_nota(nota), motivos or [tr("nenhum fator de risco relevante")]

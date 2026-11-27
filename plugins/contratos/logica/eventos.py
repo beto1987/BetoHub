@@ -18,14 +18,16 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Iterable
 
+from beto_hub.core.i18n import N_
+
 ACEITO, OBJETIVO, OBJ_CONCLUIDO, OBJ_RETIRADO, ENCERRADO, FIM_NOTIFICADO, DEFINICAO = (
     "aceito", "objetivo", "obj_concluido", "obj_retirado", "encerrado", "fim_notificado", "definicao")
 
 # Resultado final do contrato
 ATIVO, CONCLUIDO, FALHOU, ABANDONADO, DESATIVADO, SEM_FIM = (
     "ativo", "concluido", "falhou", "abandonado", "desativado", "sem_fim")
-NOMES_STATUS = {ATIVO: "Em andamento", CONCLUIDO: "Concluído", FALHOU: "Falhou",
-                ABANDONADO: "Abandonado", DESATIVADO: "Cancelado", SEM_FIM: "Sem desfecho no log"}
+NOMES_STATUS = {ATIVO: N_("Em andamento"), CONCLUIDO: N_("Concluído"), FALHOU: N_("Falhou"),
+                ABANDONADO: N_("Abandonado"), DESATIVADO: N_("Cancelado"), SEM_FIM: N_("Sem desfecho no log")}
 _RESULTADOS = {"complete": CONCLUIDO, "fail": FALHOU, "abandon": ABANDONADO, "deactivate": DESATIVADO}
 _NOTIF_FIM = {"Contract Complete": CONCLUIDO, "Contract Failed": FALHOU, "Contract Withdrawn": DESATIVADO}
 
@@ -157,14 +159,14 @@ def nome_legivel(interno: str) -> str:
 
 # ---------------------------------------------------------------- classificação
 _TIPOS = (
-    ("Transporte", r"haul|deliver|cargo|courier|delivery|supply|package|transport"),
-    ("Salvamento", r"salvage|claim #|debris|wreck"),
-    ("Resgate", r"rescue|missing person|distress|medical|medivac|survivor|beacon"),
-    ("Mineração", r"\bmining|\bmine\b|\bore\b|asteroid mining|resource ?gathering"),
-    ("Caça-recompensa", r"bounty|crimestat|criminal|wanted|\btarget:"),
-    ("Combate", r"combat|gauntlet|defeat|eliminate|neutralize|kill|hostile|attack|defend|protect|patrol|interdict|"
+    (N_("Transporte"), r"haul|deliver|cargo|courier|delivery|supply|package|transport"),
+    (N_("Salvamento"), r"salvage|claim #|debris|wreck"),
+    (N_("Resgate"), r"rescue|missing person|distress|medical|medivac|survivor|beacon"),
+    (N_("Mineração"), r"\bmining|\bmine\b|\bore\b|asteroid mining|resource ?gathering"),
+    (N_("Caça-recompensa"), r"bounty|crimestat|criminal|wanted|\btarget:"),
+    (N_("Combate"), r"combat|gauntlet|defeat|eliminate|neutralize|kill|hostile|attack|defend|protect|patrol|interdict|"
                 r"xenothreat|assault|ambush|security|escort"),
-    ("Investigação", r"investigat|locate|search|blackbox|recover|retrieve|find"),
+    (N_("Investigação"), r"investigat|locate|search|blackbox|recover|retrieve|find"),
 )
 
 
@@ -175,7 +177,7 @@ def classificar(titulo: str, objetivos: Iterable[str] = ()) -> str:
         for nome, padrao in _TIPOS:
             if re.search(padrao, t):
                 return nome
-    return "Outros"
+    return N_("Outros")
 
 
 def local_do_titulo(titulo: str) -> str:

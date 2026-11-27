@@ -11,6 +11,7 @@ from typing import Any
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
+from beto_hub.core.i18n import tr
 from beto_hub.core.plugin_base import HubContext
 from beto_hub.core.texto import chave_nome
 
@@ -35,11 +36,11 @@ PADROES = {
 def tempo_relativo(epoch: float) -> str:
     minutos = int((time.time() - epoch) // 60)
     if minutos < 1:
-        return "agora"
+        return tr("agora")
     if minutos < 60:
-        return f"há {minutos} min"
+        return tr("há {n} min", n=minutos)
     horas = minutos // 60
-    return f"há {horas} h" if horas < 48 else f"há {horas // 24} dias"
+    return tr("há {n} h", n=horas) if horas < 48 else tr("há {n} dias", n=horas // 24)
 
 
 class ControladorComercio(QObject):
@@ -93,13 +94,13 @@ class ControladorComercio(QObject):
     # ------------------------------------------------------------ dados
     def carregar_dados(self, forcar: bool = False) -> None:
         if self.uex is None:
-            self.status.emit("Serviço da UEX indisponível.", "erro")
+            self.status.emit(tr("Serviço da UEX indisponível."), "erro")
             return
         if self._baixando:
             return
         self._baixando = True
         self.ocupado.emit(True)
-        self.status.emit("Atualizando preços na UEX…", "ajuda")
+        self.status.emit(tr("Atualizando preços na UEX…"), "ajuda")
         self.ctx.workers.executar(self._baixar, forcar, ao_concluir=self._ao_baixar, ao_falhar=self._ao_falhar_download)
 
     def _baixar(self, forcar: bool) -> dict[str, Any]:
@@ -138,13 +139,13 @@ class ControladorComercio(QObject):
     def _ao_falhar_download(self, erro: Exception) -> None:
         self._baixando = False
         self.ocupado.emit(False)
-        self.status.emit(f"Não foi possível obter os preços: {erro}", "erro")
+        self.status.emit(tr("Não foi possível obter os preços: {erro}", erro=erro), "erro")
 
     def _emitir_status_precos(self, aviso: str = "", extra: str = "") -> None:
         if self.precos_obtidos_em is None:
             return
-        texto = (f"{len(self.precos)} preços em {len(self.terminais)} terminais · "
-                 f"atualizados {tempo_relativo(self.precos_obtidos_em)}")
+        texto = tr("{precos} preços em {terminais} terminais · atualizados {quando}", precos=len(self.precos),
+                   terminais=len(self.terminais), quando=tempo_relativo(self.precos_obtidos_em))
         self.status.emit(" ".join(t for t in (aviso, extra, texto) if t), "alerta" if aviso else "ok")
 
     # ------------------------------------------------------------ nave ativa (módulo Frota)
@@ -182,7 +183,7 @@ class ControladorComercio(QObject):
     # ------------------------------------------------------------ rotas
     def buscar(self, params: ParametrosBusca) -> None:
         if not self.precos:
-            self.status.emit("Ainda sem preços. Clique em \"Atualizar preços\".", "alerta")
+            self.status.emit(tr("Ainda sem preços. Clique em \"Atualizar preços\"."), "alerta")
             return
         self._ultima_busca = params
         if self._buscando:
@@ -190,7 +191,7 @@ class ControladorComercio(QObject):
             return
         self._buscando = True
         self.ocupado.emit(True)
-        self.status.emit("Calculando rotas e buscando distâncias…", "ajuda")
+        self.status.emit(tr("Calculando rotas e buscando distâncias…"), "ajuda")
         self.ctx.workers.executar(
             self._calcular, params, list(self.precos), dict(self.terminais),
             int(self.opcao("rotas_com_distancia")), float(self.opcao("distancia_minima")),
@@ -214,17 +215,18 @@ class ControladorComercio(QObject):
         sem_dist = sum(r.distancia is None for r in rotas)
         self.rotasCalculadas.emit(self.rotas)
         if not rotas:
-            self.status.emit("Nenhuma rota lucrativa com esses filtros.", "alerta")
+            self.status.emit(tr("Nenhuma rota lucrativa com esses filtros."), "alerta")
         else:
             self._emitir_status_precos(extra=(
-                f"{len(rotas)} rotas" + (f" ({sem_dist} sem distância na UEX)" if sem_dist else "") + " ·"
+                (tr("{n} rotas ({sem} sem distância na UEX)", n=len(rotas), sem=sem_dist) if sem_dist
+                 else tr("{n} rotas", n=len(rotas))) + " ·"
             ))
 
     def _ao_falhar_calculo(self, erro: Exception) -> None:
         self._buscando = False
         self._busca_pendente = False
         self.ocupado.emit(False)
-        self.status.emit(f"Erro ao calcular rotas: {erro}", "erro")
+        self.status.emit(tr("Erro ao calcular rotas: {erro}", erro=erro), "erro")
 
     def reordenar(self, chave: str) -> None:
         self.ctx.salvar_opcoes({"ordenacao": chave})

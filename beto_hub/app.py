@@ -13,13 +13,15 @@ Ordem de inicialização:
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
-from PySide6.QtCore import QLockFile, QObject, QPointF
+from PySide6.QtCore import QLibraryInfo, QLocale, QLockFile, QObject, QPointF, QProcess, QTranslator
 from PySide6.QtGui import QAction, QColor, QIcon, QPainter, QPixmap, QPolygonF
 from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QSystemTrayIcon
 
+from beto_hub.core.i18n import N_, tr
 from . import NOME_APP, __version__
-from .core import keymap, paths
+from .core import i18n, keymap, paths
 from .core.config import GerenciadorConfig
 from .core.database import BancoDados
 from .core.events import BarramentoEventos
@@ -45,7 +47,7 @@ ATALHOS = {
     ATALHO_OVERLAY: ("atalhos.overlay", "atalhos.overlay_ativo"),
     ATALHO_CLIQUE: ("atalhos.clique", "atalhos.clique_ativo"),
 }
-NOMES_ATALHOS = {ATALHO_OVERLAY: "mostrar/esconder overlay", ATALHO_CLIQUE: "clique atravessa"}
+NOMES_ATALHOS = {ATALHO_OVERLAY: N_("mostrar/esconder overlay"), ATALHO_CLIQUE: N_("clique atravessa")}
 
 
 def _icone_app() -> QIcon:
@@ -78,18 +80,26 @@ class HubApp(QObject):
         self.qt.setApplicationVersion(__version__)
         self.qt.setQuitOnLastWindowClosed(False)  # overlay/bandeja seguem vivos
         self.qt.setWindowIcon(_icone_app())
+        # Traduções do próprio Qt (botões Sim/Não, menus de contexto) no idioma escolhido
+        self._tradutor_qt = QTranslator(self.qt)
+        if self._tradutor_qt.load(i18n.ARQUIVOS_QT.get(i18n.idioma(), ""),
+                                  QLibraryInfo.path(QLibraryInfo.TranslationsPath)):
+            self.qt.installTranslator(self._tradutor_qt)
+        # Números e datas dos campos do Qt (spinbox, data) no padrão do idioma
+        QLocale.setDefault(QLocale(i18n.LOCALES_QT.get(i18n.idioma(), "pt_BR")))
+        self.log.info("Idioma da interface: %s", i18n.idioma())
         self._trava = QLockFile(str(paths.pasta_dados() / "betohub.lock"))
         self._trava.setStaleLockTime(0)  # sem prazo; trava de processo que morreu é detectada pelo PID
 
         self._encerrando = False
         # nome do atalho -> (ok, mensagem) do último registro
-        self.status_atalhos: dict[str, tuple[bool, str]] = {n: (False, "Atalho desativado.") for n in ATALHOS}
+        self.status_atalhos: dict[str, tuple[bool, str]] = {n: (False, tr("Atalho desativado.")) for n in ATALHOS}
         self.plugins: list[PluginCarregado] = []
 
     # ================================================================ início
     def executar(self) -> int:
         if not self._trava.tryLock(200):
-            QMessageBox.information(None, NOME_APP, "O Beto Hub já está aberto (veja a bandeja do Windows).")
+            QMessageBox.information(None, NOME_APP, tr("O Beto Hub já está aberto (veja a bandeja do Windows)."))
             self.log.warning("Segunda instância bloqueada")
             return 0
 
@@ -99,7 +109,7 @@ class HubApp(QObject):
             self.log.critical("Falha ao iniciar o Hub", exc_info=True)
             QMessageBox.critical(
                 None, NOME_APP,
-                f"O Hub não conseguiu iniciar:\n{erro}\n\nDetalhes no log:\n{paths.pasta_logs()}",
+                tr("O Hub não conseguiu iniciar:\n{erro}\n\nDetalhes no log:\n{pasta}", erro=erro, pasta=paths.pasta_logs()),
             )
             return 1
         return self.qt.exec()
@@ -177,7 +187,7 @@ class HubApp(QObject):
                 self.log.exception("Erro ao criar o painel de overlay de %s", plugin.id)
                 continue
             if painel is not None:
-                self.overlay.adicionar_painel(plugin.id, plugin.nome, painel)
+                self.overlay.adicionar_painel(plugin.id, tr(plugin.nome), painel)
         self.overlay.finalizar_paineis()
 
     # ================================================================ bandeja
@@ -185,15 +195,15 @@ class HubApp(QObject):
         self.bandeja = QSystemTrayIcon(self.qt.windowIcon(), self)
         self.bandeja.setToolTip(NOME_APP)
         menu = QMenu()
-        menu.addAction("Abrir Beto Hub", self.mostrar_janela)
-        menu.addAction("Mostrar/esconder overlay", self.alternar_overlay)
-        self.acao_bandeja_clique = QAction("Overlay: clique atravessa", menu, checkable=True)
+        menu.addAction(tr("Abrir Beto Hub"), self.mostrar_janela)
+        menu.addAction(tr("Mostrar/esconder overlay"), self.alternar_overlay)
+        self.acao_bandeja_clique = QAction(tr("Overlay: clique atravessa"), menu, checkable=True)
         self.acao_bandeja_clique.triggered.connect(lambda *_: self.alternar_clique_atravessa())
         menu.addAction(self.acao_bandeja_clique)
         menu.addSeparator()
-        menu.addAction("Configurações…", self.abrir_configuracoes)
+        menu.addAction(tr("Configurações…"), self.abrir_configuracoes)
         menu.addSeparator()
-        menu.addAction("Sair", self.sair)
+        menu.addAction(tr("Sair"), self.sair)
         self._menu_bandeja = menu  # manter referência
         self.bandeja.setContextMenu(menu)
         self.bandeja.activated.connect(
@@ -251,7 +261,7 @@ class HubApp(QObject):
             texto = str(self.config.obter(chave_texto, "") or "")
             if not ativo or not texto:
                 self.atalhos.remover(nome)
-                self.status_atalhos[nome] = (False, "Atalho desativado.")
+                self.status_atalhos[nome] = (False, tr("Atalho desativado."))
                 continue
             try:
                 normal = keymap.normalizar(texto)
@@ -262,7 +272,8 @@ class HubApp(QObject):
             if normal in usados:
                 self.atalhos.remover(nome)
                 self.status_atalhos[nome] = (
-                    False, f"{normal} já é o atalho de \"{NOMES_ATALHOS[usados[normal]]}\". Escolha outra."
+                    False, tr("{atalho} já é o atalho de \"{nome}\". Escolha outra.", atalho=normal,
+                              nome=tr(NOMES_ATALHOS[usados[normal]]))
                 )
                 continue
             usados[normal] = nome
@@ -279,7 +290,7 @@ class HubApp(QObject):
             definir_nivel(self.config.obter("geral.nivel_log", "INFO"))
             self.log.info("Nível de log alterado para %s", self.config.obter("geral.nivel_log"))
         self._atualizar_status()
-        self.janela.mensagem("Configurações aplicadas.")
+        self.janela.mensagem(tr("Configurações aplicadas."))
 
     def _atualizar_status(self) -> None:
         if not hasattr(self, "janela"):
@@ -293,6 +304,16 @@ class HubApp(QObject):
         self.acao_bandeja_clique.setChecked(clique)
 
     # ================================================================ saída
+    def reiniciar(self) -> None:
+        """Fecha e abre o Hub de novo (usado para trocar o idioma)."""
+        if getattr(sys, "frozen", False):
+            programa, argumentos = sys.executable, sys.argv[1:]
+        else:
+            programa, argumentos = sys.executable, [str(Path(sys.argv[0]).resolve()), *sys.argv[1:]]
+        self.log.info("Reiniciando o Hub")
+        self.sair()  # libera a trava de instância única antes de abrir o novo processo
+        QProcess.startDetached(programa, argumentos, str(paths.raiz_app()))
+
     def sair(self) -> None:
         if self._encerrando:
             return

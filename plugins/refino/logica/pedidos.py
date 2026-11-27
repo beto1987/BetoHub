@@ -7,10 +7,12 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+from beto_hub.core import i18n
+from beto_hub.core.i18n import N_
 from beto_hub.core.database import BancoDados
 
 ANDAMENTO, PRONTO, RETIRADO = "andamento", "pronto", "retirado"
-NOMES_STATUS = {ANDAMENTO: "Refinando", PRONTO: "Pronto", RETIRADO: "Retirado"}
+NOMES_STATUS = {ANDAMENTO: N_("Refinando"), PRONTO: N_("Pronto"), RETIRADO: N_("Retirado")}
 
 MIGRACOES = [
     """
@@ -56,7 +58,7 @@ class Pedido:
 
     @property
     def descricao_itens(self) -> str:
-        return ", ".join(f"{i.get('nome', '?')} ({i.get('quantidade_cscu', 0):,.0f} cSCU)".replace(",", ".")
+        return ", ".join(f"{i.get('nome', '?')} ({i18n.numero(i.get('quantidade_cscu', 0))} cSCU)"
                          for i in self.itens)
 
     @property

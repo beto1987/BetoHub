@@ -14,6 +14,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Callable, Iterable
 
+from beto_hub.core.i18n import N_, tr
 from beto_hub.core.texto import chave_nome
 
 from .eventos import local_do_titulo
@@ -103,9 +104,13 @@ class Parada:
 
     @property
     def descricao(self) -> str:
-        qtd = f"{self.scu:g} SCU de " if self.scu else ""
-        acao = "Coletar" if self.tipo == COLETA else "Entregar"
-        return f"{acao} {qtd}{self.carga}".strip() if self.carga else acao
+        if not self.carga:
+            return tr("Coletar") if self.tipo == COLETA else tr("Entregar")
+        if self.scu:
+            modelo = N_("Coletar {scu} SCU de {carga}") if self.tipo == COLETA else N_("Entregar {scu} SCU de {carga}")
+            return tr(modelo, scu=f"{self.scu:g}", carga=tr(self.carga))
+        modelo = N_("Coletar {carga}") if self.tipo == COLETA else N_("Entregar {carga}")
+        return tr(modelo, carga=tr(self.carga))
 
 
 def ler_entrega(texto: str) -> dict[str, Any] | None:
@@ -148,7 +153,7 @@ def paradas_dos_contratos(contratos: Iterable[Contrato], indice: IndiceLocais | 
         origem = local_do_titulo(c.titulo) if " from " in f" {c.titulo.lower()} " else ""
         algo_entregue = any(o.status != OBJ_ATIVO for o in c.objetivos)
         if origem and not coletas and not algo_entregue:
-            coletas.append(Parada(COLETA, c.missao, c.rotulo, origem, "carga do contrato"))
+            coletas.append(Parada(COLETA, c.missao, c.rotulo, origem, N_("carga do contrato")))
         paradas.extend(coletas + entregas)
     if indice is not None:
         for p in paradas:
@@ -183,7 +188,7 @@ def melhor_rota(paradas: list[Parada], distancia: Distancia, inicio: Local | Non
     rota = Rota()
     sem_local = [p for p in paradas if p.incluir and p.local is None]
     if sem_local:
-        rota.avisos.append(f"{len(sem_local)} parada(s) sem local definido ficaram de fora.")
+        rota.avisos.append(tr("{n} parada(s) sem local definido ficaram de fora.", n=len(sem_local)))
     if not validas:
         return rota
 
@@ -206,7 +211,7 @@ def melhor_rota(paradas: list[Parada], distancia: Distancia, inicio: Local | Non
                 if q.tipo == COLETA and q.missao == p.missao and q.local.id_terminal != p.local.id_terminal:
                     antes[pos[p.local.id_terminal]].add(pos[q.local.id_terminal])
     if _tem_ciclo(antes):
-        rota.avisos.append("Coletas e entregas em conflito: a ordem coleta→entrega foi ignorada.")
+        rota.avisos.append(tr("Coletas e entregas em conflito: a ordem coleta→entrega foi ignorada."))
         antes = [set() for _ in range(n)]
 
     cache: dict[tuple[int, int], float | None] = {}
@@ -229,7 +234,7 @@ def melhor_rota(paradas: list[Parada], distancia: Distancia, inicio: Local | Non
     else:
         rota.exata = False
         ordem = _vizinho_mais_proximo(n, antes, custo)
-        rota.avisos.append(f"{n} locais: rota aproximada (vizinho mais próximo).")
+        rota.avisos.append(tr("{n} locais: rota aproximada (vizinho mais próximo).", n=n))
 
     anterior = inicio
     for i in ordem:
@@ -248,7 +253,7 @@ def melhor_rota(paradas: list[Parada], distancia: Distancia, inicio: Local | Non
         rota.trechos.append(Trecho(local, sorted(grupos[local.id_terminal], key=lambda p: p.tipo != COLETA), dist))
         anterior = local
     if rota.desconhecidas:
-        rota.avisos.append(f"{rota.desconhecidas} trecho(s) sem distância na UEX (não somados ao total).")
+        rota.avisos.append(tr("{n} trecho(s) sem distância na UEX (não somados ao total).", n=rota.desconhecidas))
     return rota
 
 

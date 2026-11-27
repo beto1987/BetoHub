@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core.i18n import N_, tr
 from beto_hub.ui.theme import repolir
 
 from ..logica.eventos import NOMES_STATUS
@@ -23,9 +24,9 @@ from .rota import PainelRota
 if TYPE_CHECKING:
     from ..controlador import ControladorContratos
 
-COLUNAS_ATIVOS = ["Tipo", "Contrato", "Objetivos", "Aceito", "Há", "Recompensa"]
-COLUNAS_HIST = ["Encerrado", "Tipo", "Contrato", "Resultado", "Duração", "Recompensa", "Log"]
-PERIODOS = {"Hoje": 0, "Últimos 7 dias": 7, "Últimos 30 dias": 30, "Tudo": None}
+COLUNAS_ATIVOS = [N_("Tipo"), N_("Contrato"), N_("Objetivos"), N_("Aceito"), N_("Há"), N_("Recompensa")]
+COLUNAS_HIST = [N_("Encerrado"), N_("Tipo"), N_("Contrato"), N_("Resultado"), N_("Duração"), N_("Recompensa"), "Log"]
+PERIODOS = {N_("Hoje"): 0, N_("Últimos 7 dias"): 7, N_("Últimos 30 dias"): 30, N_("Tudo"): None}
 
 
 def _inicio_periodo(dias: int | None) -> float | None:
@@ -38,7 +39,7 @@ def _inicio_periodo(dias: int | None) -> float | None:
 
 def _tabela(colunas: list[str], esticar: str) -> QTableWidget:
     t = QTableWidget(0, len(colunas))
-    t.setHorizontalHeaderLabels(colunas)
+    t.setHorizontalHeaderLabels([tr(c) for c in colunas])
     t.verticalHeader().setVisible(False)
     t.setEditTriggers(QAbstractItemView.NoEditTriggers)
     t.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -63,6 +64,7 @@ class _Lista(QWidget):
         esquerda = QWidget()
         self.v = QVBoxLayout(esquerda)
         self.v.setContentsMargins(0, 0, 6, 0)
+        self.colunas = colunas
         self.tabela = _tabela(colunas, "Contrato")
         self.tabela.itemSelectionChanged.connect(self._ao_selecionar)
         self.v.addWidget(self.tabela, 1)
@@ -94,7 +96,7 @@ class _Lista(QWidget):
                 item = QTableWidgetItem(texto)
                 if cor:
                     item.setForeground(QColor(cor))
-                if self.tabela.horizontalHeaderItem(j).text() in ("Recompensa", "Objetivos"):
+                if self.colunas[j] in ("Recompensa", "Objetivos"):
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.tabela.setItem(i, j, item)
         self.tabela.clearSelection()
@@ -119,8 +121,8 @@ class AbaContratos(QWidget):
         self.rotulo_status = QLabel()
         self.rotulo_status.setWordWrap(True)
         topo.addWidget(self.rotulo_status, 1)
-        importar = QPushButton("Importar histórico")
-        importar.setToolTip("Lê os logs das suas sessões anteriores (pasta logbackups do jogo).")
+        importar = QPushButton(tr("Importar histórico"))
+        importar.setToolTip(tr("Lê os logs das suas sessões anteriores (pasta logbackups do jogo)."))
         importar.clicked.connect(self._importar)
         topo.addWidget(importar)
         layout.addLayout(topo)
@@ -128,14 +130,14 @@ class AbaContratos(QWidget):
         self.abas = QTabWidget()
         self.ativos = _Lista(c, COLUNAS_ATIVOS)
         self.ativos.vazio.setText(
-            "Nenhum contrato ativo. Aceite um contrato no jogo: ele aparece aqui sozinho em poucos segundos "
-            "(o Hub lê o Game.log do Star Citizen, sem tocar no jogo).")
-        self.abas.addTab(self.ativos, "ATIVOS")
+            tr("Nenhum contrato ativo. Aceite um contrato no jogo: ele aparece aqui sozinho em poucos segundos "
+               "(o Hub lê o Game.log do Star Citizen, sem tocar no jogo)."))
+        self.abas.addTab(self.ativos, tr("ATIVOS"))
         self.historico = _Lista(c, COLUNAS_HIST)
         self._montar_filtros_historico()
-        self.abas.addTab(self.historico, "HISTÓRICO")
+        self.abas.addTab(self.historico, tr("HISTÓRICO"))
         self.rota = PainelRota(c)
-        self.abas.addTab(self.rota, "ROTA DE ENTREGAS")
+        self.abas.addTab(self.rota, tr("ROTA DE ENTREGAS"))
         layout.addWidget(self.abas, 1)
 
         c.status.connect(self._ao_status)
@@ -146,22 +148,23 @@ class AbaContratos(QWidget):
     def _montar_filtros_historico(self) -> None:
         h = self.historico
         barra = QHBoxLayout()
-        barra.addWidget(QLabel("Período:"))
+        barra.addWidget(QLabel(tr("Período:")))
         self.periodo = QComboBox()
-        self.periodo.addItems(list(PERIODOS))
-        self.periodo.setCurrentText("Últimos 30 dias")
+        for chave in PERIODOS:
+            self.periodo.addItem(tr(chave), chave)
+        self.periodo.setCurrentIndex(self.periodo.findData("Últimos 30 dias"))
         self.periodo.currentIndexChanged.connect(self.recarregar)
         barra.addWidget(self.periodo)
-        barra.addWidget(QLabel("Resultado:"))
+        barra.addWidget(QLabel(tr("Resultado:")))
         self.filtro_status = QComboBox()
-        self.filtro_status.addItem("Todos", "")
+        self.filtro_status.addItem(tr("Todos"), "")
         for chave, nome in NOMES_STATUS.items():
             if chave != "ativo":
-                self.filtro_status.addItem(nome, chave)
+                self.filtro_status.addItem(tr(nome), chave)
         self.filtro_status.currentIndexChanged.connect(self.recarregar)
         barra.addWidget(self.filtro_status)
         self.filtro_tipo = QComboBox()
-        self.filtro_tipo.addItem("Todos os tipos", "")
+        self.filtro_tipo.addItem(tr("Todos os tipos"), "")
         self.filtro_tipo.currentIndexChanged.connect(self.recarregar)
         barra.addWidget(self.filtro_tipo)
         barra.addStretch(1)
@@ -169,8 +172,8 @@ class AbaContratos(QWidget):
         self.resumo = QLabel()
         self.resumo.setTextFormat(Qt.RichText)
         h.layout_principal.insertWidget(1, self.resumo)
-        h.vazio.setText("Nenhum contrato encerrado neste período. Use \"Importar histórico\" para trazer "
-                        "os contratos das suas sessões anteriores.")
+        h.vazio.setText(tr("Nenhum contrato encerrado neste período. Use \"Importar histórico\" para trazer "
+                           "os contratos das suas sessões anteriores."))
 
     # ================================================================ dados
     def _ao_status(self, texto: str, papel: str) -> None:
@@ -180,27 +183,27 @@ class AbaContratos(QWidget):
 
     def _importar(self) -> None:
         if not self.c.importar_historico():
-            self._ao_status("Aguarde a leitura atual terminar e tente de novo.", "alerta")
+            self._ao_status(tr("Aguarde a leitura atual terminar e tente de novo."), "alerta")
 
     def recarregar(self, *_a) -> None:
         ativos = self.c.ativos()
         linhas = []
         for c in ativos:
             feitos, total = c.progresso
-            linhas.append([(c.tipo, None), (c.rotulo, None), (f"{feitos}/{total}" if total else "—", None),
+            linhas.append([(tr(c.tipo), None), (c.rotulo, None), (f"{feitos}/{total}" if total else "—", None),
                            (data_hora(c.aceito_em), None), (duracao(c.duracao_s), None),
                            (numero(c.recompensa) if c.recompensa else "—", None)])
         self.ativos.preencher(ativos, linhas)
-        self.abas.setTabText(0, f"ATIVOS ({len(ativos)})")
+        self.abas.setTabText(0, f"{tr('ATIVOS')} ({len(ativos)})")
 
-        todos = self.c.historico(_inicio_periodo(PERIODOS[self.periodo.currentText()]))
+        todos = self.c.historico(_inicio_periodo(PERIODOS[self.periodo.currentData() or "Últimos 30 dias"]))
         tipos = sorted({c.tipo for c in todos if c.tipo})
         tipo_atual = self.filtro_tipo.currentData()
         self.filtro_tipo.blockSignals(True)
         self.filtro_tipo.clear()
-        self.filtro_tipo.addItem("Todos os tipos", "")
+        self.filtro_tipo.addItem(tr("Todos os tipos"), "")
         for t in tipos:
-            self.filtro_tipo.addItem(t, t)
+            self.filtro_tipo.addItem(tr(t), t)
         self.filtro_tipo.setCurrentIndex(max(0, self.filtro_tipo.findData(tipo_atual)))
         self.filtro_tipo.blockSignals(False)
 
@@ -209,8 +212,8 @@ class AbaContratos(QWidget):
         linhas = []
         for c in hist:
             cor = CORES_STATUS.get(c.status)
-            linhas.append([(data_hora(c.encerrado_em), None), (c.tipo, None), (c.rotulo, None),
-                           (NOMES_STATUS.get(c.status, c.status), cor), (duracao(c.duracao_s), None),
+            linhas.append([(data_hora(c.encerrado_em), None), (tr(c.tipo), None), (c.rotulo, None),
+                           (tr(NOMES_STATUS.get(c.status, c.status)), cor), (duracao(c.duracao_s), None),
                            (numero(c.recompensa) if c.recompensa else "—", None),
                            ("✔" if c.registrado_log else "", "#4cd98a")])
         self.historico.preencher(hist, linhas)
@@ -218,9 +221,10 @@ class AbaContratos(QWidget):
         r = resumo(hist)
         taxa = "—" if r["taxa"] is None else f"{r['taxa'] * 100:.0f}%"
         recompensas = (f"{numero(r['recompensas'])} aUEC <span style='color:#7f98ad'>"
-                       f"(em {r['com_recompensa']} de {r['concluidos']} concluídos)</span>")
+                       + tr("(em {n} de {total} concluídos)", n=r["com_recompensa"], total=r["concluidos"]) + "</span>")
+        cinza = "<span style='color:#7f98ad'>{}</span>"
         self.resumo.setText(
-            f"<span style='color:#7f98ad'>Contratos:</span> <b>{r['total']}</b> &nbsp;·&nbsp; "
-            f"<span style='color:#7f98ad'>Concluídos:</span> <b style='color:#4cd98a'>{r['concluidos']}</b> &nbsp;·&nbsp; "
-            f"<span style='color:#7f98ad'>Taxa de sucesso:</span> <b>{taxa}</b> &nbsp;·&nbsp; "
-            f"<span style='color:#7f98ad'>Recompensas informadas:</span> <b>{recompensas}</b>")
+            f"{cinza.format(tr('Contratos:'))} <b>{r['total']}</b> &nbsp;·&nbsp; "
+            f"{cinza.format(tr('Concluídos:'))} <b style='color:#4cd98a'>{r['concluidos']}</b> &nbsp;·&nbsp; "
+            f"{cinza.format(tr('Taxa de sucesso:'))} <b>{taxa}</b> &nbsp;·&nbsp; "
+            f"{cinza.format(tr('Recompensas informadas:'))} <b>{recompensas}</b>")

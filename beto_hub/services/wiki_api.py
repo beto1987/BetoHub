@@ -12,6 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from beto_hub.core.i18n import tr
 from ..core.logging_setup import obter_logger
 from .api_cache import CacheAPI
 from .http_client import ClienteHTTP, ErroHTTP
@@ -67,7 +68,7 @@ class ClienteWiki:
         resposta = self.http.obter_json(
             f"{self.url_base}/vehicles", {"page[size]": POR_PAGINA, "page[number]": numero})
         if not isinstance(resposta, dict) or not isinstance(resposta.get("data"), list):
-            raise ErroWiki("Resposta inesperada da API da Star Citizen Wiki.")
+            raise ErroWiki(tr("Resposta inesperada da API da Star Citizen Wiki."))
         ultima = int((resposta.get("meta") or {}).get("last_page") or numero)
         return resposta["data"], ultima
 
@@ -79,7 +80,7 @@ class ClienteWiki:
             naves.extend(resumir_nave(d) for d in dados if isinstance(d, dict))
             numero += 1
         if not naves:
-            raise ErroWiki("A API da Star Citizen Wiki não devolveu nenhuma nave.")
+            raise ErroWiki(tr("A API da Star Citizen Wiki não devolveu nenhuma nave."))
         return naves
 
     def naves(self, forcar: bool = False) -> ResultadoAPI:
@@ -94,7 +95,7 @@ class ClienteWiki:
             if entrada:
                 log.warning("Usando cache antigo de %s (%.0f h): %s", chave, entrada.idade_s / 3600, erro)
                 return ResultadoAPI(entrada.dados, entrada.obtido_em, do_cache=True, desatualizado=True,
-                                    aviso=f"Star Citizen Wiki indisponível ({erro}). Mostrando dados salvos.")
+                                    aviso=tr("Star Citizen Wiki indisponível ({erro}). Mostrando dados salvos.", erro=erro))
             raise ErroWiki(str(erro)) from erro
         nova = self.cache.gravar(chave, dados)
         log.info("Wiki: %s atualizado (%d naves)", chave, len(dados))

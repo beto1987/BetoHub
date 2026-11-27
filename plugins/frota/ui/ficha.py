@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView, QHeaderView, QLabel, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core.i18n import tr
 from ..logica.comparacao import ATRIBUTOS, TEXTO_FICHA, numero
 from ..logica.hangar import NaveHangar
 from ..logica.naves import FichaNave
@@ -43,32 +44,32 @@ class FichaWidget(QWidget):
     def mostrar(self, ficha: FichaNave | None, nave: NaveHangar | None = None) -> None:
         self.tabela.setRowCount(0)
         if ficha is None:
-            self.titulo.setText("FICHA DA NAVE")
+            self.titulo.setText(tr("FICHA DA NAVE"))
             self.subtitulo.setText(
-                "Selecione uma nave do hangar para ver as estatísticas." if nave is None else
-                f"\"{nave.nome}\" não foi encontrada nos dados da Star Citizen Wiki.")
+                tr("Selecione uma nave do hangar para ver as estatísticas.") if nave is None else
+                tr("\"{nave}\" não foi encontrada nos dados da Star Citizen Wiki.", nave=nave.nome))
             return
 
         self.titulo.setText((nave.apelido.upper() + " · " if nave and nave.apelido else "") + ficha.nome.upper())
         detalhes = [ficha.nome_jogo if ficha.nome_jogo != ficha.nome else "",
-                    "veículo terrestre" if ficha.terrestre else "",
-                    "conceito (ainda não voa)" if ficha.status == "in-concept" else "",
-                    f"loadout de fábrica · dados do jogo {ficha.versao}" if ficha.versao else "loadout de fábrica"]
+                    tr("veículo terrestre") if ficha.terrestre else "",
+                    tr("conceito (ainda não voa)") if ficha.status == "in-concept" else "",
+                    tr("loadout de fábrica · dados do jogo {versao}", versao=ficha.versao) if ficha.versao else tr("loadout de fábrica")]
         if nave and nave.origem:
-            detalhes.append(nave.origem)
+            detalhes.append(tr(nave.origem))
         self.subtitulo.setText(" · ".join(d for d in detalhes if d))
 
         grupo_atual = ""
         for a in ATRIBUTOS:
             if a.grupo != grupo_atual:
                 grupo_atual = a.grupo
-                self._linha_grupo(a.grupo.upper())
+                self._linha_grupo(tr(a.grupo).upper())
             texto = TEXTO_FICHA.get(a.rotulo, a.texto)(ficha)
-            self._linha(a.rotulo, texto, a.dica)
+            self._linha(tr(a.rotulo), texto, tr(a.dica) if a.dica else "")
             if a.rotulo == "Dano dos mísseis":
                 self._armas(ficha)
         if nave and nave.notas:
-            self._linha_grupo("NOTAS")
+            self._linha_grupo(tr("NOTAS"))
             self._linha("", nave.notas)
 
     # ------------------------------------------------------------ linhas
@@ -99,6 +100,7 @@ class FichaWidget(QWidget):
     def _armas(self, ficha: FichaNave) -> None:
         if not ficha.armas:
             return
-        texto = "\n".join(f"{a.quantidade}× {a.nome} — {numero(a.dps)} DPS cada" for a in ficha.armas)
-        self._linha("Armas do piloto", texto)
+        texto = "\n".join(tr("{n}× {arma} — {dps} DPS cada", n=a.quantidade, arma=a.nome, dps=numero(a.dps))
+                          for a in ficha.armas)
+        self._linha(tr("Armas do piloto"), texto)
         self.tabela.resizeRowToContents(self.tabela.rowCount() - 1)

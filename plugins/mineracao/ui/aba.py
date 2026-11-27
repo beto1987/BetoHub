@@ -13,6 +13,8 @@ from PySide6.QtWidgets import (
     QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core import i18n
+from beto_hub.core.i18n import N_, tr
 from beto_hub.ui.theme import repolir
 
 from .editor_nave import EditorNave
@@ -23,8 +25,8 @@ if TYPE_CHECKING:
     from ..controlador import ControladorMineracao
 
 TEXTOS_AREA = {
-    "regiao_numero": "Arraste um retângulo em volta de onde aparece o NÚMERO do scan  |  Esc cancela",
-    "regiao_rocha": "Arraste um retângulo em volta do painel da rocha (MASS / RESISTANCE / INSTABILITY)  |  Esc cancela",
+    "regiao_numero": N_("Arraste um retângulo em volta de onde aparece o NÚMERO do scan  |  Esc cancela"),
+    "regiao_rocha": N_("Arraste um retângulo em volta do painel da rocha (MASS / RESISTANCE / INSTABILITY)  |  Esc cancela"),
 }
 
 
@@ -54,7 +56,7 @@ class AbaMineracao(QWidget):
         divisor.addWidget(self._painel_esquerdo())
         divisor.addWidget(self._painel_direito())
         divisor.setStretchFactor(1, 1)
-        divisor.setSizes([380, 820])
+        divisor.setSizes([440, 760])  # espaço para textos mais longos (outros idiomas)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
         layout.addWidget(divisor)
@@ -87,30 +89,30 @@ class AbaMineracao(QWidget):
         self.rotulo_status = QLabel()
         self.rotulo_status.setWordWrap(True)
         v.addWidget(self.rotulo_status)
-        self.so_com_jogo = QCheckBox("Só ler com o Star Citizen em primeiro plano")
+        self.so_com_jogo = QCheckBox(tr("Só ler com o Star Citizen em primeiro plano"))
         self.so_com_jogo.setChecked(bool(self.c.opcoes["so_com_jogo"]))
         self.so_com_jogo.toggled.connect(lambda v: self.c.atualizar_opcoes({"so_com_jogo": v}))
         v.addWidget(self.so_com_jogo)
         layout.addWidget(g)
 
         # ---- áreas
-        g = QGroupBox("ÁREAS DA TELA")
+        g = QGroupBox(tr("ÁREAS DA TELA"))
         form = QFormLayout(g)
         self.rotulos_area: dict[str, QLabel] = {}
-        for chave, titulo in (("regiao_numero", "Número do scan"), ("regiao_rocha", "Painel da rocha")):
+        for chave, titulo in (("regiao_numero", tr("Número do scan")), ("regiao_rocha", tr("Painel da rocha"))):
             rot = QLabel()
             rot.setProperty("papel", "ajuda")
             self.rotulos_area[chave] = rot
-            agora = QPushButton("Marcar agora")
+            agora = QPushButton(tr("Marcar agora"))
             agora.clicked.connect(lambda *_, k=chave: self._selecionar(k, 0))
-            em5 = QPushButton("Em 5 s")
-            em5.setToolTip("Dá 5 segundos para você voltar ao jogo e pingar antes do print.")
+            em5 = QPushButton(tr("Em 5 s"))
+            em5.setToolTip(tr("Dá 5 segundos para você voltar ao jogo e pingar antes do print."))
             em5.clicked.connect(lambda *_, k=chave: self._selecionar(k, 5))
             linha = QHBoxLayout()
             linha.addWidget(agora)
             linha.addWidget(em5)
             if chave == "regiao_rocha":
-                remover = QPushButton("Remover")
+                remover = QPushButton(tr("Remover"))
                 remover.setProperty("perigo", "true")
                 remover.clicked.connect(lambda: self.c.atualizar_opcoes({"regiao_rocha": {}}))
                 linha.addWidget(remover)
@@ -121,11 +123,11 @@ class AbaMineracao(QWidget):
         self.contagem = QLabel()
         self.contagem.setProperty("papel", "alerta")
         form.addRow(self.contagem)
-        self.seletor.contagem.connect(lambda s: self.contagem.setText(f"Print em {s} s… vá para o jogo e pingue."))
+        self.seletor.contagem.connect(lambda s: self.contagem.setText(tr("Print em {s} s… vá para o jogo e pingue.", s=s)))
         layout.addWidget(g)
 
         # ---- nave
-        g = QGroupBox("NAVE E LASERS")
+        g = QGroupBox(tr("NAVE E LASERS"))
         v = QVBoxLayout(g)
         self.editor = EditorNave(self.c.dados, self.c.loadout)
         self.editor.alterado.connect(self.c.salvar_loadout)
@@ -133,30 +135,30 @@ class AbaMineracao(QWidget):
         layout.addWidget(g)
 
         # ---- ajustes de OCR
-        g = QGroupBox("AJUSTES DO OCR")
+        g = QGroupBox(tr("AJUSTES DO OCR"))
         form = QFormLayout(g)
         op = self.c.opcoes
         self.motor = QComboBox()
-        for rot, val in (("Automático", "auto"), ("OCR do Windows", "windows"), ("Tesseract", "tesseract")):
+        for rot, val in ((tr("Automático"), "auto"), (tr("OCR do Windows"), "windows"), ("Tesseract", "tesseract")):
             self.motor.addItem(rot, val)
         self.motor.setCurrentIndex(max(0, self.motor.findData(op["motor_ocr"])))
         self.idioma = QComboBox()
         for val in ("auto", "en-US", "en-GB", "pt-BR"):
-            self.idioma.addItem("Automático" if val == "auto" else val, val)
+            self.idioma.addItem(tr("Automático") if val == "auto" else val, val)
         self.idioma.setCurrentIndex(max(0, self.idioma.findData(op["idioma_ocr"])))
         self.intervalo = self._spin(100, 2000, op["intervalo_ms"], " ms", 50)
         self.escala = self._spin(1, 8, op["escala"], "×")
         self.limiar = self._spin(30, 240, op["limiar"], "", 5)
-        self.texto_escuro = QCheckBox("Texto mais escuro que o fundo")
+        self.texto_escuro = QCheckBox(tr("Texto mais escuro que o fundo"))
         self.texto_escuro.setChecked(bool(op["texto_escuro"]))
-        self.refinarias = self._spin(1, 6, op["refinarias_mostradas"], " estações")
-        form.addRow("Motor:", self.motor)
-        form.addRow("Idioma:", self.idioma)
-        form.addRow("Intervalo:", self.intervalo)
-        form.addRow("Ampliação:", self.escala)
-        form.addRow("Limiar (0–255):", self.limiar)
+        self.refinarias = self._spin(1, 6, op["refinarias_mostradas"], " " + tr("estações"))
+        form.addRow(tr("Motor:"), self.motor)
+        form.addRow(tr("Idioma:"), self.idioma)
+        form.addRow(tr("Intervalo:"), self.intervalo)
+        form.addRow(tr("Ampliação:"), self.escala)
+        form.addRow(tr("Limiar (0–255):"), self.limiar)
         form.addRow("", self.texto_escuro)
-        form.addRow("Melhor refino:", self.refinarias)
+        form.addRow(tr("Melhor refino:"), self.refinarias)
         for w in (self.motor, self.idioma):
             w.currentIndexChanged.connect(self._salvar_ajustes)
         for w in (self.intervalo, self.escala, self.limiar, self.refinarias):
@@ -169,7 +171,7 @@ class AbaMineracao(QWidget):
         rolagem.setWidgetResizable(True)
         rolagem.setFrameShape(QScrollArea.NoFrame)
         rolagem.setWidget(interno)
-        rolagem.setMinimumWidth(340)
+        rolagem.setMinimumWidth(400)
         return rolagem
 
     @staticmethod
@@ -193,22 +195,22 @@ class AbaMineracao(QWidget):
     # ================================================================ direita
     def _painel_direito(self) -> QWidget:
         abas = QTabWidget()
-        abas.addTab(self._aba_leitura(), "LEITURA ATUAL")
-        abas.addTab(self._aba_historico(), "HISTÓRICO")
-        abas.addTab(self._aba_teste(), "TESTAR LEITURA")
+        abas.addTab(self._aba_leitura(), tr("LEITURA ATUAL"))
+        abas.addTab(self._aba_historico(), tr("HISTÓRICO"))
+        abas.addTab(self._aba_teste(), tr("TESTAR LEITURA"))
         return abas
 
     def _aba_leitura(self) -> QWidget:
         w = QWidget()
         v = QVBoxLayout(w)
         linha = QHBoxLayout()
-        linha.addWidget(QLabel("Digitar um número:"))
+        linha.addWidget(QLabel(tr("Digitar um número:")))
         self.numero_manual = QLineEdit()
         self.numero_manual.setValidator(QIntValidator(1, 9_999_999))
-        self.numero_manual.setPlaceholderText("ex.: 17080")
+        self.numero_manual.setPlaceholderText(tr("ex.: 17080"))
         self.numero_manual.returnPressed.connect(self._identificar_manual)
         linha.addWidget(self.numero_manual)
-        b = QPushButton("Identificar")
+        b = QPushButton(tr("Identificar"))
         b.clicked.connect(self._identificar_manual)
         linha.addWidget(b)
         linha.addStretch(1)
@@ -228,7 +230,7 @@ class AbaMineracao(QWidget):
         w = QWidget()
         v = QVBoxLayout(w)
         self.tabela = QTableWidget(0, 3)
-        self.tabela.setHorizontalHeaderLabels(["Quando", "Assinatura", "Resultado"])
+        self.tabela.setHorizontalHeaderLabels([tr("Quando"), tr("Assinatura"), tr("Resultado")])
         self.tabela.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.tabela.horizontalHeader().setStretchLastSection(True)
         self.tabela.verticalHeader().setVisible(False)
@@ -241,7 +243,7 @@ class AbaMineracao(QWidget):
         self.detalhe.setWordWrap(True)
         self.detalhe.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         v.addWidget(self.detalhe, 1)
-        limpar = QPushButton("Limpar histórico")
+        limpar = QPushButton(tr("Limpar histórico"))
         limpar.setProperty("perigo", "true")
         limpar.clicked.connect(self._limpar_historico)
         linha = QHBoxLayout()
@@ -253,20 +255,20 @@ class AbaMineracao(QWidget):
     def _aba_teste(self) -> QWidget:
         w = QWidget()
         v = QVBoxLayout(w)
-        v.addWidget(_ajuda(
+        v.addWidget(_ajuda(tr(
             "Captura a área marcada agora e mostra a imagem, o que o OCR leu em cada ajuste e o "
             "resultado. Use \"em 5 s\" para dar tempo de voltar ao jogo e pingar."
-        ))
+        )))
         linha = QHBoxLayout()
-        for texto, tipo, atraso in (("Número agora", "regiao_numero", 0), ("Número em 5 s", "regiao_numero", 5),
-                                    ("Rocha agora", "regiao_rocha", 0), ("Rocha em 5 s", "regiao_rocha", 5)):
-            b = QPushButton(texto)
+        for texto, tipo, atraso in ((N_("Número agora"), "regiao_numero", 0), (N_("Número em 5 s"), "regiao_numero", 5),
+                                    (N_("Rocha agora"), "regiao_rocha", 0), (N_("Rocha em 5 s"), "regiao_rocha", 5)):
+            b = QPushButton(tr(texto))
             b.clicked.connect(lambda *_, t=tipo, a=atraso: self._testar(t, a))
             linha.addWidget(b)
         linha.addStretch(1)
         v.addLayout(linha)
         imagens = QHBoxLayout()
-        self.img_bruta, self.img_proc = QLabel("captura"), QLabel("imagem para o OCR")
+        self.img_bruta, self.img_proc = QLabel(tr("captura")), QLabel(tr("imagem para o OCR"))
         for rot in (self.img_bruta, self.img_proc):
             rot.setAlignment(Qt.AlignCenter)
             rot.setMinimumHeight(120)
@@ -283,7 +285,7 @@ class AbaMineracao(QWidget):
         if self.seletor.ativo:
             return
         self._area_em_selecao = chave
-        self.seletor.iniciar(TEXTOS_AREA[chave], atraso)
+        self.seletor.iniciar(tr(TEXTOS_AREA[chave]), atraso)
 
     def _ao_selecionar_area(self, regiao) -> None:
         self.contagem.setText("")
@@ -296,8 +298,8 @@ class AbaMineracao(QWidget):
     def _atualizar_areas(self) -> None:
         for chave, rot in self.rotulos_area.items():
             r = self.c.opcoes.get(chave) or {}
-            rot.setText(f"{r['width']}×{r['height']} px em ({r['left']}, {r['top']})"
-                        if r.get("width") else "não marcada")
+            rot.setText(tr("{largura}×{altura} px em ({x}, {y})", largura=r["width"], altura=r["height"],
+                           x=r["left"], y=r["top"]) if r.get("width") else tr("não marcada"))
 
     def _identificar_manual(self) -> None:
         texto = self.numero_manual.text().strip()
@@ -306,22 +308,22 @@ class AbaMineracao(QWidget):
             self.numero_manual.clear()
 
     def _limpar_historico(self) -> None:
-        if QMessageBox.question(self, "Mineração", "Apagar todo o histórico de leituras?",
+        if QMessageBox.question(self, tr("Mineração"), tr("Apagar todo o histórico de leituras?"),
                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             self.c.limpar_historico()
 
     def _testar(self, chave: str, atraso: int) -> None:
         regiao = self.c.opcoes.get(chave) or {}
         if not regiao.get("width"):
-            self.saida_teste.setPlainText("Essa área ainda não foi marcada.")
+            self.saida_teste.setPlainText(tr("Essa área ainda não foi marcada."))
             return
         if atraso:
-            self.saida_teste.setPlainText(f"Capturando em {atraso} s… vá para o jogo.")
+            self.saida_teste.setPlainText(tr("Capturando em {s} s… vá para o jogo.", s=atraso))
             QTimer.singleShot(atraso * 1000, lambda: self._testar(chave, 0))
             return
-        self.saida_teste.setPlainText("Lendo…")
+        self.saida_teste.setPlainText(tr("Lendo…"))
         self.c.ctx.workers.executar(self.c.testar_leitura, chave,
-                                    ao_concluir=self._ao_teste, ao_falhar=lambda e: self.saida_teste.setPlainText(f"Erro: {e}"))
+                                    ao_concluir=self._ao_teste, ao_falhar=lambda e: self.saida_teste.setPlainText(tr("Erro: {erro}", erro=e)))
 
     def _ao_teste(self, r: dict) -> None:
         self.img_bruta.setPixmap(pil_para_pixmap(r["bruta"]).scaled(
@@ -330,13 +332,14 @@ class AbaMineracao(QWidget):
             self.img_proc.setPixmap(pil_para_pixmap(r["processada"]).scaled(
                 self.img_proc.width(), 160, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.saida_teste.setPlainText(
-            f"Motor: {r['motor']}  ·  {time.strftime('%H:%M:%S')}\n\nRESULTADO: {r['resumo']}\n\n"
+            tr("Motor: {motor}  ·  {hora}\n\nRESULTADO: {resumo}\n\n", motor=r["motor"],
+               hora=time.strftime("%H:%M:%S"), resumo=r["resumo"])
             + "\n".join(r["diagnostico"])
         )
 
     # ================================================================ estado
     def _ao_ativo(self, ativo: bool) -> None:
-        self.botao_ativo.setText("⏸  PAUSAR SCANNER" if ativo else "▶  LIGAR SCANNER")
+        self.botao_ativo.setText("⏸  " + tr("PAUSAR SCANNER") if ativo else "▶  " + tr("LIGAR SCANNER"))
         self.botao_ativo.setProperty("destaque", "false" if ativo else "true")
         repolir(self.botao_ativo)
 
@@ -353,14 +356,14 @@ class AbaMineracao(QWidget):
         self.tabela.setRowCount(len(historico))
         self._historico = historico
         for i, h in enumerate(historico):
-            valores = " / ".join(f"{v:,}".replace(",", ".") for v, _ in h["results"])
+            valores = " / ".join(i18n.numero(v) for v, _ in h["results"])
             resumo = []
             for _v, cands in h["results"]:
                 if cands:
                     s = cands[0]
                     resumo.append(f"{s['count']}× {s['sig']['name']}" + ("" if s.get("exact", True) else " ~"))
                 else:
-                    resumo.append("desconhecido")
+                    resumo.append(tr("desconhecido"))
             for j, texto in enumerate((str(h["momento"]), valores, "  |  ".join(resumo))):
                 self.tabela.setItem(i, j, QTableWidgetItem(texto))
 

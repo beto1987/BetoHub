@@ -17,6 +17,7 @@ import math
 from collections import defaultdict
 from typing import Iterable
 
+from beto_hub.core.i18n import N_
 from .modelos import ParametrosBusca, Preco, Rota, Terminal
 from .risco import avaliar_risco
 
@@ -102,11 +103,11 @@ def aplicar_distancias(
 
 # Chaves de ordenação disponíveis na interface: (rótulo, função, decrescente?)
 ORDENACOES = {
-    "eficiencia": ("Mais eficientes (lucro por Gm)", lambda r: (r.eficiencia is not None, r.eficiencia or 0), True),
-    "lucro": ("Maior lucro", lambda r: r.lucro, True),
-    "risco_menor": ("Menor risco", lambda r: (r.risco, -r.lucro), False),
-    "risco_maior": ("Maior risco", lambda r: (r.risco, r.lucro), True),
-    "distancia": ("Menor distância", lambda r: (r.distancia is None, r.distancia or 0), False),
+    "eficiencia": (N_("Mais eficientes (lucro por Gm)"), lambda r: (r.eficiencia is not None, r.eficiencia or 0), True),
+    "lucro": (N_("Maior lucro"), lambda r: r.lucro, True),
+    "risco_menor": (N_("Menor risco"), lambda r: (r.risco, -r.lucro), False),
+    "risco_maior": (N_("Maior risco"), lambda r: (r.risco, r.lucro), True),
+    "distancia": (N_("Menor distância"), lambda r: (r.distancia is None, r.distancia or 0), False),
 }
 
 

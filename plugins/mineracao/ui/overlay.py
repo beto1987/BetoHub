@@ -10,6 +10,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
+from beto_hub.core.i18n import tr
 from beto_hub.ui.theme import repolir
 
 from ..controlador import ControladorMineracao
@@ -64,7 +65,7 @@ class PainelOverlayMineracao(QWidget):
         self.atualizar()
 
     def _ao_ativo(self, ativo: bool) -> None:
-        self.botao.setText("⏸ PAUSAR" if ativo else "▶ LIGAR")
+        self.botao.setText("⏸ " + tr("PAUSAR") if ativo else "▶ " + tr("LIGAR"))
         self.botao.setProperty("destaque", "false" if ativo else "true")
         repolir(self.botao)
         self.indicador.setStyleSheet("color: #7f8a97;")

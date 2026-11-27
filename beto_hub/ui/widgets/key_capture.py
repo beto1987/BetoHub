@@ -14,6 +14,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLineEdit
 
+from beto_hub.core.i18n import tr
 from ...core import keymap
 from ..theme import repolir
 
@@ -56,8 +57,8 @@ class CampoAtalho(QLineEdit):
     def __init__(self, texto: str = "", parent=None):
         super().__init__(parent)
         self.setReadOnly(True)  # o texto só muda pela captura
-        self.setPlaceholderText("Clique aqui e pressione a combinação")
-        self.setToolTip("Clique e pressione a combinação.\nEsc cancela · Backspace limpa")
+        self.setPlaceholderText(tr("Clique aqui e pressione a combinação"))
+        self.setToolTip(tr("Clique e pressione a combinação.\nEsc cancela · Backspace limpa"))
         self._valor = texto
         self._capturando = False
         self.setText(texto)
@@ -75,7 +76,7 @@ class CampoAtalho(QLineEdit):
         self._capturando = ativo
         self.setProperty("capturando", "true" if ativo else "false")
         repolir(self)
-        self.setText("Pressione a combinação…" if ativo else self._valor)
+        self.setText(tr("Pressione a combinação…") if ativo else self._valor)
 
     def focusInEvent(self, evento):  # noqa: N802
         super().focusInEvent(evento)
@@ -117,14 +118,14 @@ class CampoAtalho(QLineEdit):
             # Mostra o que já está pressionado enquanto espera a tecla principal
             parcial = [n for b, n in ((keymap.MOD_CONTROL, "Ctrl"), (keymap.MOD_ALT, "Alt"),
                                       (keymap.MOD_SHIFT, "Shift"), (keymap.MOD_WIN, "Win")) if mods & b]
-            self.setText("+".join(parcial) + "+…" if parcial else "Pressione a combinação…")
+            self.setText("+".join(parcial) + "+…" if parcial else tr("Pressione a combinação…"))
             return
 
         vk = _vk_do_evento(evento)
         try:
             texto = keymap.formatar(mods, vk)
         except ValueError:
-            self.setText("Tecla não suportada — tente outra")
+            self.setText(tr("Tecla não suportada — tente outra"))
             return
         self._confirmar(texto)
 

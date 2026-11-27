@@ -20,6 +20,7 @@ import tomlkit
 from PySide6.QtCore import QObject, Signal
 from tomlkit.items import Table
 
+from beto_hub.core.i18n import tr
 from .logging_setup import obter_logger
 
 log = obter_logger("config")
@@ -32,7 +33,7 @@ CONFIG_PADRAO = """\
 # =====================================================================
 
 [geral]
-# Idioma da interface. Por enquanto só "pt-BR".
+# Idioma da interface: "pt-BR", "en-US", "es", "fr" ou "it" (vale ao abrir o Hub).
 idioma = "pt-BR"
 # Detalhe do log: "DEBUG", "INFO", "WARNING" ou "ERROR".
 nivel_log = "INFO"
@@ -140,8 +141,8 @@ class GerenciadorConfig(QObject):
             shutil.copy2(self.caminho, backup)
             log.error("config.toml inválido (%s). Cópia salva em %s", erro, backup)
             self.aviso_carga = (
-                "O arquivo de configuração tinha um erro e foi recriado com os padrões.\n"
-                f"A versão antiga foi guardada em:\n{backup}\n\nDetalhe: {erro}"
+                tr("O arquivo de configuração tinha um erro e foi recriado com os padrões.\n"
+                   "A versão antiga foi guardada em:\n{backup}\n\nDetalhe: {erro}", backup=backup, erro=erro)
             )
             self._gravar_texto(CONFIG_PADRAO)
             return padrao

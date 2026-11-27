@@ -5,6 +5,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
+from beto_hub.core.i18n import tr
 from ..controlador import ControladorComercio, tempo_relativo
 from ..logica.modelos import Rota
 from ..logica.rotas import ORDENACOES
@@ -38,7 +39,7 @@ class PainelOverlayComercio(QWidget):
             layout.addWidget(moldura)
             self.linhas.append(rotulo)
 
-        self.vazio = QLabel("Faça uma busca na aba Comércio para ver as melhores rotas aqui.")
+        self.vazio = QLabel(tr("Faça uma busca na aba Comércio para ver as melhores rotas aqui."))
         self.vazio.setWordWrap(True)
         self.vazio.setProperty("papel", "ajuda")
         layout.addWidget(self.vazio)
@@ -57,7 +58,7 @@ class PainelOverlayComercio(QWidget):
 
     def atualizar(self, rotas: list[Rota]) -> None:
         chave = str(self.c.opcao("ordenacao"))
-        self.titulo.setText(f"TOP {QUANTIDADE} · {ORDENACOES.get(chave, ORDENACOES['eficiencia'])[0]}")
+        self.titulo.setText(f"TOP {QUANTIDADE} · {tr(ORDENACOES.get(chave, ORDENACOES['eficiencia'])[0])}")
         for i, rotulo in enumerate(self.linhas):
             rota = rotas[i] if i < len(rotas) else None
             rotulo.parentWidget().setVisible(rota is not None)
@@ -77,9 +78,9 @@ class PainelOverlayComercio(QWidget):
             f"<span style='color:#7f98ad'>({fmt.inteiro(r.scu)} SCU)</span><br>"
             f"<span style='color:#d6e6f2'>{r.origem.rotulo} → {r.destino.rotulo}</span><br>"
             f"<span style='color:#7f98ad'>{dist} · </span>"
-            f"<span style='color:{cor}'>risco {r.risco} ({r.nivel_risco})</span>"
+            f"<span style='color:{cor}'>{tr('risco {nota} ({nivel})', nota=r.risco, nivel=tr(r.nivel_risco))}</span>"
         )
 
     def _atualizar_rodape(self) -> None:
         if self.c.precos_obtidos_em:
-            self.rodape.setText(f"Preços UEX {tempo_relativo(self.c.precos_obtidos_em)}")
+            self.rodape.setText(tr("Preços UEX {quando}", quando=tempo_relativo(self.c.precos_obtidos_em)))

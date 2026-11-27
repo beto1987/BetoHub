@@ -12,6 +12,7 @@ import asyncio
 import os
 from typing import Any
 
+from beto_hub.core.i18n import tr
 from ...core.logging_setup import obter_logger
 
 log = obter_logger("ocr")
@@ -46,7 +47,7 @@ class MotorOCR:
                 self._loop = asyncio.new_event_loop()
                 self.motor = "windows"
             except Exception as e:  # pacote ausente, Windows sem OCR...
-                erros.append(f"OCR do Windows (winocr): {e}")
+                erros.append(tr("OCR do Windows (winocr): {erro}", erro=e))
 
         if self.motor is None and motor in ("auto", "tesseract"):
             try:
@@ -61,8 +62,8 @@ class MotorOCR:
 
         if self.motor is None:
             raise ErroOCR(
-                "Nenhum OCR disponível.\n  " + "\n  ".join(erros)
-                + "\nRode 'pip install winocr' (recomendado) ou instale o Tesseract."
+                tr("Nenhum OCR disponível.") + "\n  " + "\n  ".join(erros)
+                + "\n" + tr("Rode 'pip install winocr' (recomendado) ou instale o Tesseract.")
             )
         log.info("Motor de OCR: %s", self.motor)
 
@@ -86,8 +87,8 @@ class MotorOCR:
             except Exception as e:
                 ultimo = e
         raise ErroOCR(
-            f"OCR do Windows falhou ({ultimo}). Instale o pacote de idioma Inglês no Windows "
-            "ou escolha o idioma do OCR nas opções da Mineração."
+            tr("OCR do Windows falhou ({erro}). Instale o pacote de idioma Inglês no Windows "
+               "ou escolha o idioma do OCR nas opções da Mineração.", erro=ultimo)
         )
 
     # ------------------------------------------------------------ API

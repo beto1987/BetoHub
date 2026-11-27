@@ -8,9 +8,12 @@ from typing import Any
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QComboBox, QFormLayout, QGroupBox, QLabel, QVBoxLayout, QWidget
 
+from beto_hub.core.i18n import N_, tr
 from ..logica.quebra import DadosMineracao
 
-NENHUM = "(nenhum)"
+NENHUM = N_("(nenhum)")
+# Tipo de módulo como vem do mining_data.json (em português)
+TIPOS_MODULO = {"passivo": N_("passivo"), "ativo": N_("ativo")}
 
 
 class EditorNave(QWidget):
@@ -29,13 +32,13 @@ class EditorNave(QWidget):
         self.nave.addItems(list(dados.naves))
         self.nave.setCurrentText(self.lo["ship"])
         self.nave.currentTextChanged.connect(self._ao_trocar_nave)
-        form.addRow("Nave:", self.nave)
+        form.addRow(tr("Nave:"), self.nave)
         layout.addLayout(form)
 
         self.area_lasers = QVBoxLayout()
         layout.addLayout(self.area_lasers)
-        dica = QLabel("Módulos ativos (Surge, Stampede…) só contam quando você ativa; "
-                      "o resultado mostra com e sem eles.")
+        dica = QLabel(tr("Módulos ativos (Surge, Stampede…) só contam quando você ativa; "
+                         "o resultado mostra com e sem eles."))
         dica.setWordWrap(True)
         dica.setProperty("papel", "ajuda")
         layout.addWidget(dica)
@@ -50,7 +53,8 @@ class EditorNave(QWidget):
 
     # ------------------------------------------------------------ montagem
     def _rotulo_modulo(self, nome: str) -> str:
-        return f"{nome} ({self.dados.modulos[nome]['type']})"
+        tipo = self.dados.modulos[nome]["type"]
+        return f"{nome} ({tr(TIPOS_MODULO.get(tipo, tipo))})"
 
     def _montar_lasers(self) -> None:
         self._montando = True
@@ -61,22 +65,22 @@ class EditorNave(QWidget):
         self._linhas: list[tuple[QComboBox, list[QComboBox]]] = []
         n = len(self.lo["lasers"])
         for i, laser in enumerate(self.lo["lasers"]):
-            grupo = QGroupBox(f"LASER {i + 1}" if n > 1 else "CABEÇA DE LASER")
+            grupo = QGroupBox(f"LASER {i + 1}" if n > 1 else tr("CABEÇA DE LASER"))
             form = QFormLayout(grupo)
             cabeca = QComboBox()
             cabeca.addItems(self.dados.cabecas_da_nave(self.lo["ship"]))
             cabeca.setCurrentText(laser["head"])
-            form.addRow("Cabeça:", cabeca)
+            form.addRow(tr("Cabeça:"), cabeca)
             modulos = []
             for j in range(3):
                 m = QComboBox()
-                m.addItem(NENHUM, None)
+                m.addItem(tr(NENHUM), None)
                 for nome in self.dados.modulos:
                     m.addItem(self._rotulo_modulo(nome), nome)
                 atual = laser["modules"][j] if j < len(laser["modules"]) else None
                 m.setCurrentIndex(max(0, m.findData(atual)))
                 m.currentIndexChanged.connect(self._ao_mudar)
-                form.addRow(f"Módulo {j + 1}:", m)
+                form.addRow(tr("Módulo {n}:", n=j + 1), m)
                 modulos.append(m)
             cabeca.currentTextChanged.connect(lambda _t, c=cabeca, ms=modulos: (self._ajustar_slots(c, ms), self._ao_mudar()))
             self._ajustar_slots(cabeca, modulos)

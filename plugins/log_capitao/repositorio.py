@@ -8,13 +8,16 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from beto_hub.core import i18n
+from beto_hub.core.i18n import N_, tr
 from beto_hub.core.database import BancoDados
 
 TIPO_COMERCIO = "comercio"
 TIPO_REFINO = "refino"
 TIPO_CONTRATO = "contrato"
 TIPO_ANOTACAO = "anotacao"
-NOMES_TIPO = {TIPO_COMERCIO: "Comércio", TIPO_REFINO: "Refino", TIPO_CONTRATO: "Contrato", TIPO_ANOTACAO: "Anotação"}
+NOMES_TIPO = {TIPO_COMERCIO: N_("Comércio"), TIPO_REFINO: N_("Refino"), TIPO_CONTRATO: N_("Contrato"),
+              TIPO_ANOTACAO: N_("Anotação")}
 TIPOS_COM_VALOR = (TIPO_COMERCIO, TIPO_REFINO, TIPO_CONTRATO)  # entradas que têm lucro
 # Contrato usa as colunas existentes: titulo (nome do contrato), origem (local),
 # preco_venda = recompensa TOTAL (aUEC, não por SCU) e custo_extra = despesas.
@@ -43,7 +46,7 @@ MIGRACOES = [
 ]
 
 # Períodos do filtro: rótulo -> dias (None = tudo; 0 = hoje)
-PERIODOS = {"Hoje": 0, "Últimos 7 dias": 7, "Últimos 30 dias": 30, "Tudo": None}
+PERIODOS = {N_("Hoje"): 0, N_("Últimos 7 dias"): 7, N_("Últimos 30 dias"): 30, N_("Tudo"): None}
 
 
 @dataclass
@@ -157,17 +160,18 @@ class RepositorioLog:
         """CSV com ';' e BOM UTF-8: abre direto no Excel em português."""
         with open(caminho, "w", newline="", encoding="utf-8-sig") as f:
             w = csv.writer(f, delimiter=";")
-            w.writerow(["Data", "Tipo", "Mercadoria/Título", "Origem", "Destino", "SCU",
-                        "Compra (aUEC/SCU)", "Venda (aUEC/SCU)", "Investimento", "Receita", "Lucro", "Notas"])
+            w.writerow([tr(t) for t in (N_("Data"), N_("Tipo"), N_("Mercadoria/Título"), N_("Origem"), N_("Destino"), "SCU",
+                                        N_("Compra (aUEC/SCU)"), N_("Venda (aUEC/SCU)"), N_("Investimento"),
+                                        N_("Receita"), N_("Lucro"), N_("Notas"))])
 
             def num(v: float) -> str:
-                return f"{v:.2f}".replace(".", ",")
+                return f"{v:.2f}".replace(".", i18n.separador_decimal())
 
             for e in entradas:
                 comercio = e.tem_valor
                 por_scu = e.tipo in (TIPO_COMERCIO, TIPO_REFINO)
                 w.writerow([
-                    e.data, NOMES_TIPO.get(e.tipo, e.tipo), e.resumo, e.origem, e.destino,
+                    e.data, tr(NOMES_TIPO.get(e.tipo, e.tipo)), e.resumo, e.origem, e.destino,
                     num(e.scu) if por_scu else "", num(e.preco_compra) if por_scu else "",
                     num(e.preco_venda) if por_scu else "", num(e.investimento) if comercio else "",
                     num(e.receita) if comercio else "", num(e.lucro) if comercio else "", e.notas,

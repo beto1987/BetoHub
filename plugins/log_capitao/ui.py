@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (
     QMessageBox, QPlainTextEdit, QPushButton, QTableView, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core import i18n
+from beto_hub.core.i18n import N_, tr
 from .repositorio import (
     FORMATO_DATA, NOMES_TIPO, PERIODOS, TIPO_ANOTACAO, TIPO_COMERCIO, TIPO_CONTRATO, TIPO_REFINO, Entrada,
     RepositorioLog, data_inicial,
@@ -23,13 +25,12 @@ FORMATO_QT = "yyyy-MM-dd HH:mm"
 
 
 def _n(v: float, casas: int = 0) -> str:
-    texto = f"{v:,.{casas}f}"
-    return texto.replace(",", "§").replace(".", ",").replace("§", ".")
+    return i18n.numero(v, casas)
 
 
 # ====================================================================== tabela
-COLUNAS = ["Data", "Tipo", "Mercadoria / Título", "Rota", "SCU", "Compra/SCU", "Venda/SCU", "Investimento",
-           "Lucro", "Notas"]
+COLUNAS = [N_("Data"), N_("Tipo"), N_("Mercadoria / Título"), N_("Rota"), "SCU", N_("Compra/SCU"), N_("Venda/SCU"),
+           N_("Investimento"), N_("Lucro"), N_("Notas")]
 
 
 class ModeloLog(QAbstractTableModel):
@@ -50,7 +51,7 @@ class ModeloLog(QAbstractTableModel):
 
     def headerData(self, secao, orientacao, papel=Qt.DisplayRole):  # noqa: N802
         if orientacao == Qt.Horizontal and papel == Qt.DisplayRole:
-            return COLUNAS[secao]
+            return tr(COLUNAS[secao])
         return None
 
     def data(self, indice, papel=Qt.DisplayRole):
@@ -67,7 +68,7 @@ class ModeloLog(QAbstractTableModel):
                 rota = e.origem or e.destino if comercio else ""
             return {
                 "Data": e.data,
-                "Tipo": NOMES_TIPO.get(e.tipo, e.tipo),
+                "Tipo": tr(NOMES_TIPO.get(e.tipo, e.tipo)),
                 "Mercadoria / Título": e.resumo,
                 "Rota": rota,
                 "SCU": _n(e.scu, 2 if e.tipo == TIPO_REFINO else 0) if por_scu else "",
@@ -84,9 +85,10 @@ class ModeloLog(QAbstractTableModel):
         if papel == Qt.ToolTipRole and col == "Notas" and e.notas:
             return e.notas
         if papel == Qt.ToolTipRole and col == "Investimento" and e.tipo == TIPO_REFINO:
-            return "Custo do refino"
+            return tr("Custo do refino")
         if papel == Qt.ToolTipRole and col in ("Investimento", "Lucro") and e.tipo == TIPO_CONTRATO:
-            return f"Recompensa {_n(e.receita)} aUEC − despesas {_n(e.investimento)} aUEC"
+            return tr("Recompensa {recompensa} aUEC − despesas {despesas} aUEC", recompensa=_n(e.receita),
+                      despesas=_n(e.investimento))
         return None
 
 
@@ -99,16 +101,22 @@ class DialogoEntrada(QDialog):
         refino = entrada.tipo == TIPO_REFINO
         contrato = entrada.tipo == TIPO_CONTRATO
         novo = entrada.id is None
-        nome_tipo = ("viagem" if comercio else "operação de refino" if refino else
-                     "entrada de contrato" if contrato else "anotação")
-        self.setWindowTitle(("Nova " if novo else "Editar ") + nome_tipo)
+        if comercio:
+            titulo = tr("Nova viagem") if novo else tr("Editar viagem")
+        elif refino:
+            titulo = tr("Nova operação de refino") if novo else tr("Editar operação de refino")
+        elif contrato:
+            titulo = tr("Nova entrada de contrato") if novo else tr("Editar entrada de contrato")
+        else:
+            titulo = tr("Nova anotação") if novo else tr("Editar anotação")
+        self.setWindowTitle(titulo)
         self.setMinimumWidth(460)
         form = QFormLayout()
 
         self.data = QDateTimeEdit(QDateTime.fromString(entrada.data, FORMATO_QT))
-        self.data.setDisplayFormat("dd/MM/yyyy HH:mm")
+        self.data.setDisplayFormat(i18n.formato_data_qt())
         self.data.setCalendarPopup(True)
-        form.addRow("Data e hora:", self.data)
+        form.addRow(tr("Data e hora:"), self.data)
 
         if comercio:
             self.mercadoria = QLineEdit(entrada.mercadoria)
@@ -117,18 +125,18 @@ class DialogoEntrada(QDialog):
             self.scu = self._numero(entrada.scu, 0, " SCU")
             self.compra = self._numero(entrada.preco_compra, 2, " aUEC/SCU")
             self.venda = self._numero(entrada.preco_venda, 2, " aUEC/SCU")
-            form.addRow("Mercadoria:", self.mercadoria)
-            form.addRow("Origem:", self.origem)
-            form.addRow("Destino:", self.destino)
-            form.addRow("Quantidade:", self.scu)
-            form.addRow("Preço pago:", self.compra)
-            form.addRow("Preço recebido:", self.venda)
+            form.addRow(tr("Mercadoria:"), self.mercadoria)
+            form.addRow(tr("Origem:"), self.origem)
+            form.addRow(tr("Destino:"), self.destino)
+            form.addRow(tr("Quantidade:"), self.scu)
+            form.addRow(tr("Preço pago:"), self.compra)
+            form.addRow(tr("Preço recebido:"), self.venda)
             self.calculo = QLabel()
-            form.addRow("Resultado:", self.calculo)
+            form.addRow(tr("Resultado:"), self.calculo)
             for campo in (self.scu, self.compra, self.venda):
                 campo.valueChanged.connect(self._recalcular)
             self._recalcular()
-            dica = QLabel("Os valores vêm da rota escolhida; ajuste para o que você realmente pagou e recebeu.")
+            dica = QLabel(tr("Os valores vêm da rota escolhida; ajuste para o que você realmente pagou e recebeu."))
             dica.setWordWrap(True)
             dica.setProperty("papel", "ajuda")
             form.addRow(dica)
@@ -136,57 +144,57 @@ class DialogoEntrada(QDialog):
             self.mercadoria = QLineEdit(entrada.mercadoria)
             self.origem = QLineEdit(entrada.origem)
             self.destino = QLineEdit(entrada.destino)
-            self.destino.setPlaceholderText("onde vendeu o refinado")
+            self.destino.setPlaceholderText(tr("onde vendeu o refinado"))
             self.scu = self._numero(entrada.scu, 2, " SCU")
             self.compra = None
             self.custo_refino = self._numero(entrada.custo_extra, 0, " aUEC")
             self.venda = self._numero(entrada.preco_venda, 2, " aUEC/SCU")
-            form.addRow("Minério(s):", self.mercadoria)
-            form.addRow("Refinaria:", self.origem)
-            form.addRow("Vendido em:", self.destino)
-            form.addRow("Refinado:", self.scu)
-            form.addRow("Custo do refino:", self.custo_refino)
-            form.addRow("Preço de venda:", self.venda)
+            form.addRow(tr("Minério(s):"), self.mercadoria)
+            form.addRow(tr("Refinaria:"), self.origem)
+            form.addRow(tr("Vendido em:"), self.destino)
+            form.addRow(tr("Refinado:"), self.scu)
+            form.addRow(tr("Custo do refino:"), self.custo_refino)
+            form.addRow(tr("Preço de venda:"), self.venda)
             self.calculo = QLabel()
-            form.addRow("Resultado:", self.calculo)
+            form.addRow(tr("Resultado:"), self.calculo)
             for campo in (self.scu, self.custo_refino, self.venda):
                 campo.valueChanged.connect(self._recalcular)
             self._recalcular()
-            dica = QLabel("Valores estimados pelo módulo Refino; ajuste para o que você realmente recebeu.")
+            dica = QLabel(tr("Valores estimados pelo módulo Refino; ajuste para o que você realmente recebeu."))
             dica.setWordWrap(True)
             dica.setProperty("papel", "ajuda")
             form.addRow(dica)
         elif contrato:
             self.titulo = QLineEdit(entrada.titulo)
-            self.titulo.setPlaceholderText("Nome do contrato")
+            self.titulo.setPlaceholderText(tr("Nome do contrato"))
             self.origem = QLineEdit(entrada.origem)
-            self.origem.setPlaceholderText("Opcional. Ex.: Canard View")
+            self.origem.setPlaceholderText(tr("Opcional. Ex.: Canard View"))
             self.venda = self._numero(entrada.preco_venda, 0, " aUEC")
             self.custo_contrato = self._numero(entrada.custo_extra, 0, " aUEC")
-            self.custo_contrato.setToolTip("Gastos para cumprir o contrato: combustível, munição, reparos, compra de carga…")
-            form.addRow("Contrato:", self.titulo)
-            form.addRow("Local:", self.origem)
-            form.addRow("Recompensa:", self.venda)
-            form.addRow("Despesas:", self.custo_contrato)
+            self.custo_contrato.setToolTip(tr("Gastos para cumprir o contrato: combustível, munição, reparos, compra de carga…"))
+            form.addRow(tr("Contrato:"), self.titulo)
+            form.addRow(tr("Local:"), self.origem)
+            form.addRow(tr("Recompensa:"), self.venda)
+            form.addRow(tr("Despesas:"), self.custo_contrato)
             self.calculo = QLabel()
-            form.addRow("Resultado:", self.calculo)
+            form.addRow(tr("Resultado:"), self.calculo)
             for campo in (self.venda, self.custo_contrato):
                 campo.valueChanged.connect(self._recalcular)
             self._recalcular()
         else:
             self.titulo = QLineEdit(entrada.titulo)
-            self.titulo.setPlaceholderText("Ex.: Emboscada perto de CRU-L1")
-            form.addRow("Título:", self.titulo)
+            self.titulo.setPlaceholderText(tr("Ex.: Emboscada perto de CRU-L1"))
+            form.addRow(tr("Título:"), self.titulo)
 
         self.notas = QPlainTextEdit(entrada.notas)
-        self.notas.setPlaceholderText("Anotações livres…")
+        self.notas.setPlaceholderText(tr("Anotações livres…"))
         self.notas.setFixedHeight(110 if (comercio or refino or contrato) else 180)
-        form.addRow("Notas:", self.notas)
+        form.addRow(tr("Notas:"), self.notas)
 
         botoes = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
-        botoes.button(QDialogButtonBox.Save).setText("Salvar")
+        botoes.button(QDialogButtonBox.Save).setText(tr("Salvar"))
         botoes.button(QDialogButtonBox.Save).setProperty("destaque", "true")
-        botoes.button(QDialogButtonBox.Cancel).setText("Cancelar")
+        botoes.button(QDialogButtonBox.Cancel).setText(tr("Cancelar"))
         botoes.accepted.connect(self._salvar)
         botoes.rejected.connect(self.reject)
 
@@ -216,8 +224,8 @@ class DialogoEntrada(QDialog):
         lucro = rec - inv
         cor = "#4cd98a" if lucro >= 0 else "#ff5c5c"
         self.calculo.setText(
-            f"investimento {_n(inv)} · receita {_n(rec)} · "
-            f"<b style='color:{cor}'>lucro {_n(lucro)} aUEC</b>"
+            tr("investimento {investimento} · receita {receita}", investimento=_n(inv), receita=_n(rec)) + " · "
+            + f"<b style='color:{cor}'>" + tr("lucro {lucro} aUEC", lucro=_n(lucro)) + "</b>"
         )
 
     def _salvar(self) -> None:
@@ -228,7 +236,7 @@ class DialogoEntrada(QDialog):
             e.titulo, e.origem = self.titulo.text().strip(), self.origem.text().strip()
             e.preco_venda, e.custo_extra, e.scu = self.venda.value(), self.custo_contrato.value(), 0
             if not e.titulo:
-                QMessageBox.warning(self, "Log do Capitão", "Informe o nome do contrato.")
+                QMessageBox.warning(self, tr("Log do Capitão"), tr("Informe o nome do contrato."))
                 return
         elif e.tem_valor:
             e.mercadoria = self.mercadoria.text().strip()
@@ -239,12 +247,12 @@ class DialogoEntrada(QDialog):
             else:
                 e.custo_extra = self.custo_refino.value()
             if not e.mercadoria or e.scu <= 0:
-                QMessageBox.warning(self, "Log do Capitão", "Informe a mercadoria e a quantidade (SCU).")
+                QMessageBox.warning(self, tr("Log do Capitão"), tr("Informe a mercadoria e a quantidade (SCU)."))
                 return
         else:
             e.titulo = self.titulo.text().strip()
             if not e.titulo and not e.notas:
-                QMessageBox.warning(self, "Log do Capitão", "Escreva um título ou uma nota.")
+                QMessageBox.warning(self, tr("Log do Capitão"), tr("Escreva um título ou uma nota."))
                 return
         self.accept()
 
@@ -262,8 +270,9 @@ class AbaLog(QWidget):
         # ---- cartões de resumo
         grade = QGridLayout()
         self.cartoes: dict[str, QLabel] = {}
-        for i, (chave, titulo) in enumerate((("operacoes", "OPERAÇÕES"), ("lucro_total", "LUCRO TOTAL"),
-                                             ("lucro_medio", "LUCRO MÉDIO / OPERAÇÃO"), ("melhor", "MELHOR OPERAÇÃO"))):
+        for i, (chave, titulo) in enumerate((("operacoes", tr("OPERAÇÕES")), ("lucro_total", tr("LUCRO TOTAL")),
+                                             ("lucro_medio", tr("LUCRO MÉDIO / OPERAÇÃO")),
+                                             ("melhor", tr("MELHOR OPERAÇÃO")))):
             cartao = QFrame()
             cartao.setStyleSheet("QFrame { border: 1px solid #1e3a52; background: #0d1520; }")
             interno = QVBoxLayout(cartao)
@@ -281,26 +290,26 @@ class AbaLog(QWidget):
 
         # ---- barra de ações
         barra = QHBoxLayout()
-        barra.addWidget(QLabel("Período:"))
+        barra.addWidget(QLabel(tr("Período:")))
         self.periodo = QComboBox()
         for rotulo in PERIODOS:
-            self.periodo.addItem(rotulo)
-        self.periodo.setCurrentText("Últimos 30 dias")
+            self.periodo.addItem(tr(rotulo), rotulo)
+        self.periodo.setCurrentIndex(self.periodo.findData("Últimos 30 dias"))
         self.periodo.currentIndexChanged.connect(self.recarregar)
         barra.addWidget(self.periodo)
         barra.addStretch(1)
         acoes = (
-            ("+ Nova viagem", lambda: self.nova(TIPO_COMERCIO), True),
-            ("+ Novo refino", lambda: self.nova(TIPO_REFINO), False),
-            ("+ Novo contrato", lambda: self.nova(TIPO_CONTRATO), False),
-            ("+ Nova anotação", lambda: self.nova(TIPO_ANOTACAO), False),
-            ("Editar", self.editar, False),
-            ("Excluir", self.excluir, False),
-            ("Exportar CSV", self.exportar, False),
+            (N_("+ Nova viagem"), lambda: self.nova(TIPO_COMERCIO), True),
+            (N_("+ Novo refino"), lambda: self.nova(TIPO_REFINO), False),
+            (N_("+ Novo contrato"), lambda: self.nova(TIPO_CONTRATO), False),
+            (N_("+ Nova anotação"), lambda: self.nova(TIPO_ANOTACAO), False),
+            (N_("Editar"), self.editar, False),
+            (N_("Excluir"), self.excluir, False),
+            (N_("Exportar CSV"), self.exportar, False),
         )
         self.botoes: dict[str, QPushButton] = {}
         for texto, funcao, destaque in acoes:
-            b = QPushButton(texto)
+            b = QPushButton(tr(texto))
             if destaque:
                 b.setProperty("destaque", "true")
             if texto == "Excluir":
@@ -331,17 +340,18 @@ class AbaLog(QWidget):
     # ------------------------------------------------------------ dados
     def recarregar(self) -> None:
         try:
-            entradas = self.repo.listar(data_inicial(PERIODOS[self.periodo.currentText()]))
+            entradas = self.repo.listar(data_inicial(PERIODOS[self.periodo.currentData() or "Últimos 30 dias"]))
         except Exception:
             self.log.exception("Erro ao ler o Log do Capitão")
-            QMessageBox.critical(self, "Log do Capitão", "Não foi possível ler o log. Veja o arquivo de log.")
+            QMessageBox.critical(self, tr("Log do Capitão"), tr("Não foi possível ler o log. Veja o arquivo de log."))
             return
         self.modelo.definir(entradas)
         r = self.repo.resumo(entradas)
         cor = "#4cd98a" if r["lucro_total"] >= 0 else "#ff5c5c"
         self.cartoes["operacoes"].setText(
             f"{r['operacoes']}  <span style='font-size:9pt;color:#7f98ad'>"
-            f"{r['viagens']} viagens · {r['refinos']} refinos · {r['contratos']} contratos</span>")
+            + tr("{viagens} viagens · {refinos} refinos · {contratos} contratos", viagens=r["viagens"],
+                 refinos=r["refinos"], contratos=r["contratos"]) + "</span>")
         self.cartoes["lucro_total"].setText(f"<span style='color:{cor}'>{_n(r['lucro_total'])}</span>")
         self.cartoes["lucro_medio"].setText(_n(r["lucro_medio"]))
         m = r["melhor"]
@@ -379,7 +389,7 @@ class AbaLog(QWidget):
             self.repo.salvar(entrada)
         except Exception:
             self.log.exception("Erro ao salvar entrada do Log do Capitão")
-            QMessageBox.critical(self, "Log do Capitão", "Não foi possível salvar. Veja o arquivo de log.")
+            QMessageBox.critical(self, tr("Log do Capitão"), tr("Não foi possível salvar. Veja o arquivo de log."))
             return
         self.log.info("Log do Capitão: entrada %s salva (%s)", entrada.id, entrada.resumo)
         self.recarregar()
@@ -389,8 +399,8 @@ class AbaLog(QWidget):
         if not e:
             return
         resposta = QMessageBox.question(
-            self, "Excluir entrada",
-            f"Excluir \"{e.resumo}\" de {e.data}?\nEssa ação não pode ser desfeita.",
+            self, tr("Excluir entrada"),
+            tr("Excluir \"{entrada}\" de {data}?\nEssa ação não pode ser desfeita.", entrada=e.resumo, data=e.data),
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
         )
         if resposta == QMessageBox.Yes:
@@ -400,13 +410,14 @@ class AbaLog(QWidget):
 
     def exportar(self) -> None:
         nome = f"log_do_capitao_{datetime.now():%Y-%m-%d}.csv"
-        caminho, _ = QFileDialog.getSaveFileName(self, "Exportar Log do Capitão", str(Path.home() / nome),
-                                                 "Planilha CSV (*.csv)")
+        caminho, _ = QFileDialog.getSaveFileName(self, tr("Exportar Log do Capitão"), str(Path.home() / nome),
+                                                 tr("Planilha CSV (*.csv)"))
         if not caminho:
             return
         try:
             self.repo.exportar_csv(self.modelo.entradas, Path(caminho))
         except OSError as erro:
-            QMessageBox.critical(self, "Exportar", f"Não foi possível salvar o arquivo:\n{erro}")
+            QMessageBox.critical(self, tr("Exportar"), tr("Não foi possível salvar o arquivo:\n{erro}", erro=erro))
             return
-        QMessageBox.information(self, "Exportar", f"{len(self.modelo.entradas)} entradas exportadas para:\n{caminho}")
+        QMessageBox.information(self, tr("Exportar"), tr("{n} entradas exportadas para:\n{caminho}",
+                                                         n=len(self.modelo.entradas), caminho=caminho))

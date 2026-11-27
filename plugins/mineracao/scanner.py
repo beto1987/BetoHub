@@ -16,6 +16,7 @@ import threading
 import time
 from typing import Any, Callable
 
+from beto_hub.core.i18n import tr
 from beto_hub.core.logging_setup import obter_logger
 from beto_hub.services.ocr import ErroOCR, MotorOCR
 from beto_hub.services.ocr.capture import Capturador, mudou, regiao_valida
@@ -64,7 +65,7 @@ class ThreadScanner(threading.Thread):
         try:
             capt = Capturador()
         except Exception as e:
-            self.saida("status", (f"Captura de tela indisponível: {e}", "erro"))
+            self.saida("status", (tr("Captura de tela indisponível: {erro}", erro=e), "erro"))
             log.exception("Falha ao iniciar a captura de tela")
             return
 
@@ -86,11 +87,11 @@ class ThreadScanner(threading.Thread):
                 # ---- estados de espera (pausado, sem área, jogo fora de foco)
                 espera = None
                 if not self.ativo:
-                    espera = ("Scanner pausado", "ajuda")
+                    espera = (tr("Scanner pausado"), "ajuda")
                 elif not tem_area:
-                    espera = ("Marque a área do número na aba Mineração", "alerta")
+                    espera = (tr("Marque a área do número na aba Mineração"), "alerta")
                 elif op.get("so_com_jogo", True) and not jogo_em_primeiro_plano():
-                    espera = ("Aguardando o Star Citizen em primeiro plano", "ajuda")
+                    espera = (tr("Aguardando o Star Citizen em primeiro plano"), "ajuda")
                 if espera:
                     if espera != estado_espera:
                         self.saida("status", espera)
@@ -98,7 +99,7 @@ class ThreadScanner(threading.Thread):
                     time.sleep(0.4)
                     continue
                 if estado_espera is not None:
-                    self.saida("status", ("Scan ativo", "ok"))
+                    self.saida("status", (tr("Scan ativo"), "ok"))
                     estado_espera = None
 
                 # ---- motor de OCR (recria se o usuário trocar motor/idioma)
@@ -109,7 +110,7 @@ class ThreadScanner(threading.Thread):
                     try:
                         motor = MotorOCR(*chave) if chave[2] else MotorOCR(chave[0], chave[1])
                         chave_motor = chave
-                        self.saida("status", (f"Scan ativo · OCR {motor.motor}", "ok"))
+                        self.saida("status", (tr("Scan ativo · OCR {motor}", motor=motor.motor), "ok"))
                     except ErroOCR as e:
                         self.saida("status", (str(e), "erro"))
                         motor = None
@@ -135,7 +136,7 @@ class ThreadScanner(threading.Thread):
                         self._passo_numero(capt, leitor, regiao_n, num)
                     except Exception as e:
                         log.warning("Erro lendo o número: %s", e)
-                        self.saida("status", (f"Erro: {e}", "erro"))
+                        self.saida("status", (tr("Erro: {erro}", erro=e), "erro"))
                         time.sleep(1)
                 time.sleep(intervalo)
         finally:

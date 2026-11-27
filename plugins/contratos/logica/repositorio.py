@@ -10,6 +10,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Iterable
 
+from beto_hub.core.i18n import tr
 from beto_hub.core.database import BancoDados
 
 from .eventos import (
@@ -82,7 +83,7 @@ class Contrato:
 
     @property
     def rotulo(self) -> str:
-        return self.titulo or nome_legivel(self.nome_interno) or "(contrato sem título no log)"
+        return self.titulo or nome_legivel(self.nome_interno) or tr("(contrato sem título no log)")
 
     @property
     def duracao_s(self) -> float | None:
@@ -239,14 +240,14 @@ class RepositorioContratos:
 
 def notas_para_log(c: Contrato) -> str:
     """Notas da entrada no Log do Capitão: tipo, reputação, suas notas e os objetivos da missão."""
-    linhas = [" · ".join(t for t in (c.tipo, c.reputacao) if t)]
+    linhas = [" · ".join(t for t in (tr(c.tipo) if c.tipo else "", c.reputacao) if t)]
     if c.notas:
         linhas.append(c.notas)
     if c.objetivos:
-        linhas.append("Objetivos:")
+        linhas.append(tr("Objetivos:"))
         simbolos = {OBJ_FEITO: "✔", OBJ_CANCELADO: "✕"}
         for o in c.objetivos:
-            sufixo = " (retirado)" if o.status == OBJ_CANCELADO else ""
+            sufixo = " " + tr("(retirado)") if o.status == OBJ_CANCELADO else ""
             linhas.append(f"{simbolos.get(o.status, '○')} {o.texto or o.id}{sufixo}")
     return "\n".join(l for l in linhas if l)
 

@@ -15,6 +15,7 @@ import urllib.request
 from collections import deque
 from typing import Any
 
+from beto_hub.core.i18n import tr
 from .. import __version__
 from ..core.logging_setup import obter_logger
 
@@ -81,14 +82,14 @@ class ClienteHTTP:
                 return json.loads(corpo.decode("utf-8"))
             except urllib.error.HTTPError as e:
                 temporario = e.code in (429, 500, 502, 503, 504)
-                ultimo_erro = ErroHTTP(f"Servidor respondeu {e.code} ({e.reason}).", e.code, temporario)
+                ultimo_erro = ErroHTTP(tr("Servidor respondeu {codigo} ({motivo}).", codigo=e.code, motivo=e.reason), e.code, temporario)
                 if not temporario:
                     break
             except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as e:
                 motivo = getattr(e, "reason", e)
-                ultimo_erro = ErroHTTP(f"Sem conexão com o servidor ({motivo}).")
+                ultimo_erro = ErroHTTP(tr("Sem conexão com o servidor ({motivo}).", motivo=motivo))
             except (json.JSONDecodeError, UnicodeDecodeError) as e:
-                ultimo_erro = ErroHTTP(f"Resposta inválida do servidor ({e}).", temporario=False)
+                ultimo_erro = ErroHTTP(tr("Resposta inválida do servidor ({erro}).", erro=e), temporario=False)
                 break
 
             if tentativa < self.tentativas:

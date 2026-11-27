@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from beto_hub.core.i18n import tr
 from .logging_setup import obter_logger
 from .plugin_base import BasePlugin, ErroManifesto, HubContext, Manifesto
 
@@ -46,7 +47,7 @@ def ler_manifesto(pasta: Path) -> Manifesto:
         with arquivo.open("rb") as f:
             dados = tomllib.load(f)
     except tomllib.TOMLDecodeError as erro:
-        raise ErroManifesto(f"manifest.toml inválido: {erro}") from erro
+        raise ErroManifesto(tr("manifest.toml inválido: {erro}", erro=erro)) from erro
     return Manifesto.de_dict(dados, pasta)
 
 
@@ -85,7 +86,7 @@ class CarregadorPlugins:
                 continue
 
             if manifesto.id in ids_vistos:
-                msg = f"Id '{manifesto.id}' repetido em outro plugin."
+                msg = tr("Id '{id}' repetido em outro plugin.", id=manifesto.id)
                 log.error(msg)
                 resultado.append(PluginCarregado(pasta, manifesto, ERRO, erro=msg))
                 continue
@@ -109,7 +110,8 @@ class CarregadorPlugins:
             classe = getattr(modulo, manifesto.classe, None)
             if classe is None or not (isinstance(classe, type) and issubclass(classe, BasePlugin)):
                 raise TypeError(
-                    f"{nome_modulo} não tem a classe '{manifesto.classe}' derivada de BasePlugin."
+                    tr("{modulo} não tem a classe '{classe}' derivada de BasePlugin.", modulo=nome_modulo,
+                       classe=manifesto.classe)
                 )
             instancia: BasePlugin = classe(manifesto)
             if migrar:

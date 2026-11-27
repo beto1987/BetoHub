@@ -11,18 +11,20 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Iterable
 
+from beto_hub.core.i18n import N_, tr
 from beto_hub.core.texto import chave_nome
 
 # Partes do class_name que marcam entradas que não são naves de jogador
 _CLASSES_IGNORADAS = re.compile(r"_Display$|_Boarded|_TEMP_", re.I)
 
 CARREIRAS = {
-    "combat": "Combate", "transporter": "Transporte", "transport": "Transporte", "exploration": "Exploração",
-    "industrial": "Industrial", "competition": "Corrida", "multi-role": "Multifunção", "support": "Suporte",
-    "ground": "Terrestre", "starter": "Iniciante", "destroyer": "Destróier", "gunship": "Canhoneira",
+    "combat": N_("Combate"), "transporter": N_("Transporte"), "transport": N_("Transporte"),
+    "exploration": N_("Exploração"), "industrial": N_("Industrial"), "competition": N_("Corrida"),
+    "multi-role": N_("Multifunção"), "support": N_("Suporte"), "ground": N_("Terrestre"),
+    "starter": N_("Iniciante"), "destroyer": N_("Destróier"), "gunship": N_("Canhoneira"),
 }
-TAMANHOS = {"vehicle": "Veículo", "snub": "Mínima", "small": "Pequena", "medium": "Média",
-            "large": "Grande", "capital": "Capital"}
+TAMANHOS = {"vehicle": N_("Veículo"), "snub": N_("Mínima"), "small": N_("Pequena"), "medium": N_("Média"),
+            "large": N_("Grande"), "capital": N_("Capital")}
 
 
 def _num(v: Any) -> float | None:
@@ -107,11 +109,11 @@ class FichaNave:
 
     @property
     def carreira_pt(self) -> str:
-        return CARREIRAS.get(self.carreira.lower(), self.carreira)
+        return tr(CARREIRAS[self.carreira.lower()]) if self.carreira.lower() in CARREIRAS else self.carreira
 
     @property
     def tamanho_pt(self) -> str:
-        return TAMANHOS.get(self.tamanho.lower(), self.tamanho)
+        return tr(TAMANHOS[self.tamanho.lower()]) if self.tamanho.lower() in TAMANHOS else self.tamanho
 
     @property
     def chaves(self) -> list[str]:

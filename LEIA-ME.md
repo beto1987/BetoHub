@@ -34,6 +34,14 @@ O `config.toml` tem comentários explicando cada opção. Para editar à mão, f
 Se o arquivo tiver algum erro, o Hub guarda uma cópia como `config.toml.corrompido-<data>`
 e recria o arquivo com os valores padrão.
 
+## Idioma
+
+- O Hub está em **português (Brasil)**, **inglês (EUA)**, **espanhol**, **francês** e **italiano**.
+  Escolha em **Configurações › Geral › Idioma**; o Hub pergunta se pode reiniciar para aplicar.
+- Números e datas seguem o idioma (1.234,5 em português; 1,234.5 e mês/dia em inglês).
+- Nomes que vêm do jogo e da UEX (naves, minérios, estações, títulos e objetivos de contratos)
+  aparecem como o jogo os mostra, em inglês.
+
 ## Overlay e atalho
 
 - O overlay é uma janela única, sempre visível, com uma aba por módulo. Você pode arrastá-lo pela

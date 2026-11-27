@@ -18,6 +18,8 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core import i18n
+from beto_hub.core.i18n import N_, tr
 from ..logica.estimativas import NOMES_NIVEL, Estimativa, Item, chave_minerio, formatar_minutos
 from ..logica.pedidos import Pedido
 
@@ -30,7 +32,7 @@ MAX_MINERIOS = 8
 def _n(v: float | None, casas: int = 0) -> str:
     if v is None:
         return "—"
-    return f"{v:,.{casas}f}".replace(",", "§").replace(".", ",").replace("§", ".")
+    return i18n.numero(v, casas)
 
 
 def _pontos(nota: int) -> str:
@@ -60,10 +62,10 @@ class _LinhaMinerio(QWidget):
         self.quantidade.setSingleStep(100)
         self.quantidade.setGroupSeparatorShown(True)
         self.quantidade.setSuffix(" cSCU")
-        self.quantidade.setToolTip("Quantidade bruta como aparece no terminal de refino (1 SCU = 100 cSCU).")
+        self.quantidade.setToolTip(tr("Quantidade bruta como aparece no terminal de refino (1 SCU = 100 cSCU)."))
         remover = QPushButton("✕")
         remover.setFixedWidth(32)
-        remover.setToolTip("Remover este minério")
+        remover.setToolTip(tr("Remover este minério"))
         remover.clicked.connect(lambda: ao_remover(self))
         h.addWidget(self.minerio, 2)
         h.addWidget(self.quantidade, 1)
@@ -87,7 +89,7 @@ class DialogoPedido(QDialog):
         self.pedido: Pedido | None = None
         self._estimativas: list[Estimativa] = []
         self._valores_editados = False
-        self.setWindowTitle("Novo pedido de refino — Beto Hub")
+        self.setWindowTitle(tr("Novo pedido de refino — Beto Hub"))
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
         self.setMinimumSize(780, 640)
 
@@ -97,7 +99,7 @@ class DialogoPedido(QDialog):
         layout = QVBoxLayout(self)
 
         # ---- refinaria e minérios
-        g = QGroupBox("CARGA")
+        g = QGroupBox(tr("CARGA"))
         v = QVBoxLayout(g)
         form = QFormLayout()
         self.refinaria = QComboBox()
@@ -105,12 +107,12 @@ class DialogoPedido(QDialog):
             self.refinaria.addItem(r.rotulo, r.id_terminal)
         _combo_pesquisavel(self.refinaria)
         self.refinaria.currentIndexChanged.connect(self._agendar)
-        form.addRow("Refinaria:", self.refinaria)
+        form.addRow(tr("Refinaria:"), self.refinaria)
         v.addLayout(form)
         self.area_itens = QVBoxLayout()
         v.addLayout(self.area_itens)
         linha = QHBoxLayout()
-        self.botao_mais = QPushButton("+ minério")
+        self.botao_mais = QPushButton(tr("+ minério"))
         self.botao_mais.clicked.connect(self._adicionar_linha)
         linha.addWidget(self.botao_mais)
         self.rotulo_bonus = QLabel()
@@ -120,11 +122,12 @@ class DialogoPedido(QDialog):
         layout.addWidget(g)
 
         # ---- comparação de métodos
-        g = QGroupBox("COMPARAÇÃO DE MÉTODOS (ESTIMATIVA, EM SCU)")
+        g = QGroupBox(tr("COMPARAÇÃO DE MÉTODOS (ESTIMATIVA, EM SCU)"))
         v = QVBoxLayout(g)
         self.tabela = QTableWidget(0, 8)
         self.tabela.setHorizontalHeaderLabels(
-            ["Método", "Refinado", "Custo", "Tempo", "Valor de venda", "Lucro previsto", "Base", "Rend · Custo · Vel"])
+            [tr(t) for t in (N_("Método"), N_("Refinado"), N_("Custo"), N_("Tempo"),
+                             N_("Valor de venda"), N_("Lucro previsto"), N_("Base"), N_("Rend · Custo · Vel"))])
         self.tabela.verticalHeader().setVisible(False)
         self.tabela.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tabela.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -133,15 +136,15 @@ class DialogoPedido(QDialog):
         self.tabela.horizontalHeader().setStretchLastSection(True)
         self.tabela.itemSelectionChanged.connect(self._ao_escolher_metodo)
         v.addWidget(self.tabela)
-        nota = QLabel("Estimativas a partir de pedidos reais enviados à UEX pela comunidade; a coluna Base diz "
-                      "de onde vieram e quantos relatos. Valor de venda = melhor preço do minério refinado na UEX.")
+        nota = QLabel(tr("Estimativas a partir de pedidos reais enviados à UEX pela comunidade; a coluna Base diz "
+                         "de onde vieram e quantos relatos. Valor de venda = melhor preço do minério refinado na UEX."))
         nota.setWordWrap(True)
         nota.setProperty("papel", "ajuda")
         v.addWidget(nota)
         layout.addWidget(g, 1)
 
         # ---- valores do jogo
-        g = QGroupBox("CONFIRME COM O TERMINAL DO JOGO")
+        g = QGroupBox(tr("CONFIRME COM O TERMINAL DO JOGO"))
         form = QFormLayout(g)
         self.custo = QDoubleSpinBox()
         self.custo.setDecimals(0)
@@ -160,21 +163,21 @@ class DialogoPedido(QDialog):
         for w in (self.custo, self.horas, self.minutos):
             w.valueChanged.connect(self._marcar_editado)
         self.inicio = QDateTimeEdit(QDateTime.currentDateTime())
-        self.inicio.setDisplayFormat("dd/MM/yyyy HH:mm")
+        self.inicio.setDisplayFormat(i18n.formato_data_qt())
         self.inicio.setCalendarPopup(True)
-        self.inicio.setToolTip("Quando o refino começou no jogo (ajuste se estiver registrando depois).")
+        self.inicio.setToolTip(tr("Quando o refino começou no jogo (ajuste se estiver registrando depois)."))
         self.notas = QLineEdit()
-        self.notas.setPlaceholderText("opcional")
-        form.addRow("Custo do refino:", self.custo)
-        form.addRow("Tempo de refino:", tempo)
-        form.addRow("Começou em:", self.inicio)
-        form.addRow("Notas:", self.notas)
+        self.notas.setPlaceholderText(tr("opcional"))
+        form.addRow(tr("Custo do refino:"), self.custo)
+        form.addRow(tr("Tempo de refino:"), tempo)
+        form.addRow(tr("Começou em:"), self.inicio)
+        form.addRow(tr("Notas:"), self.notas)
         layout.addWidget(g)
 
         botoes = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        botoes.button(QDialogButtonBox.Ok).setText("Criar pedido")
+        botoes.button(QDialogButtonBox.Ok).setText(tr("Criar pedido"))
         botoes.button(QDialogButtonBox.Ok).setProperty("destaque", "true")
-        botoes.button(QDialogButtonBox.Cancel).setText("Cancelar")
+        botoes.button(QDialogButtonBox.Cancel).setText(tr("Cancelar"))
         botoes.accepted.connect(self._criar)
         botoes.rejected.connect(self.reject)
         self.aviso = QLabel()
@@ -185,8 +188,8 @@ class DialogoPedido(QDialog):
         self._linhas: list[_LinhaMinerio] = []
         self._adicionar_linha()
         if not c.estimador:
-            self.aviso.setText("Os dados da UEX ainda não chegaram: digite refinaria e minério à mão; "
-                               "o pedido é criado sem estimativas.")
+            self.aviso.setText(tr("Os dados da UEX ainda não chegaram: digite refinaria e minério à mão; "
+                                  "o pedido é criado sem estimativas."))
 
     # ================================================================ minérios
     def _adicionar_linha(self) -> None:
@@ -221,7 +224,7 @@ class DialogoPedido(QDialog):
         ref = self.c.refinarias.get(id_terminal)
         if ref and itens:
             partes = [f"{i.nome} {ref.bonus.get(i.chave, 0):+g}%" for i in itens]
-            self.rotulo_bonus.setText("Bônus desta refinaria: " + " · ".join(partes))
+            self.rotulo_bonus.setText(tr("Bônus desta refinaria:") + " " + " · ".join(partes))
         else:
             self.rotulo_bonus.setText("")
 
@@ -234,7 +237,7 @@ class DialogoPedido(QDialog):
                 e.metodo.nome,
                 f"{_n(e.refinado_scu, 2)} SCU" if e.refinado_scu is not None else "—",
                 _n(e.custo), formatar_minutos(e.minutos), _n(e.valor), _n(e.lucro),
-                f"{NOMES_NIVEL[e.nivel]} ({e.amostras})" if e.nivel != "sem dados" else "sem dados",
+                f"{tr(NOMES_NIVEL[e.nivel])} ({e.amostras})" if e.nivel != "sem dados" else tr("sem dados"),
                 f"{_pontos(e.metodo.nota_rendimento)}  {_pontos(e.metodo.nota_custo)}  {_pontos(e.metodo.nota_velocidade)}",
             ]
             for col, texto in enumerate(celulas):
@@ -280,11 +283,11 @@ class DialogoPedido(QDialog):
     def _criar(self) -> None:
         itens = self._itens()
         if not itens:
-            self.aviso.setText("Informe pelo menos um minério com quantidade.")
+            self.aviso.setText(tr("Informe pelo menos um minério com quantidade."))
             return
         minutos = self.horas.value() * 60 + self.minutos.value()
         if minutos <= 0:
-            self.aviso.setText("Informe o tempo de refino mostrado no terminal do jogo.")
+            self.aviso.setText(tr("Informe o tempo de refino mostrado no terminal do jogo."))
             return
         e = self._estimativa_escolhida()
         por_chave = {ei.item.chave: ei for ei in (e.itens if e else [])}

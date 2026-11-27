@@ -9,12 +9,13 @@ from PySide6.QtWidgets import (
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core.i18n import N_, tr
 from ..logica.comparacao import ATRIBUTOS, melhores
 from ..logica.naves import FichaNave
 from .comum import COR_ACENTO, COR_OK, COR_SUAVE, combo_pesquisavel, preencher_naves
 
 MAX_NAVES = 4
-NENHUMA = "— nenhuma —"
+NENHUMA = N_("— nenhuma —")
 
 
 class Comparador(QWidget):
@@ -34,13 +35,13 @@ class Comparador(QWidget):
             c.currentIndexChanged.connect(self._atualizar)
             topo.addWidget(c, 1)
             self.combos.append(c)
-        limpar = QPushButton("Limpar")
+        limpar = QPushButton(tr("Limpar"))
         limpar.clicked.connect(self.limpar)
         topo.addWidget(limpar)
         layout.addLayout(topo)
 
-        dica = QLabel("Escolha de 2 a 4 naves (qualquer nave, não só as do hangar). "
-                      "O melhor valor de cada linha fica em verde. Estatísticas do loadout de fábrica.")
+        dica = QLabel(tr("Escolha de 2 a 4 naves (qualquer nave, não só as do hangar). "
+                         "O melhor valor de cada linha fica em verde. Estatísticas do loadout de fábrica."))
         dica.setProperty("papel", "ajuda")
         dica.setWordWrap(True)
         layout.addWidget(dica)
@@ -57,7 +58,7 @@ class Comparador(QWidget):
         self.fichas = fichas
         self._por_uuid = {f.uuid: f for f in fichas}
         for c in self.combos:
-            preencher_naves(c, fichas, vazio=NENHUMA, manter_uuid=c.currentData() or "")
+            preencher_naves(c, fichas, vazio=tr(NENHUMA), manter_uuid=c.currentData() or "")
         self._atualizar()
 
     def comparar(self, uuids: list[str]) -> None:
@@ -86,13 +87,13 @@ class Comparador(QWidget):
         for a in ATRIBUTOS:
             if a.grupo != grupo_atual:
                 grupo_atual = a.grupo
-                self._linha_grupo(a.grupo.upper(), len(escolhidas))
+                self._linha_grupo(tr(a.grupo).upper(), len(escolhidas))
             linha = self.tabela.rowCount()
             self.tabela.insertRow(linha)
-            rotulo = QTableWidgetItem(a.rotulo)
+            rotulo = QTableWidgetItem(tr(a.rotulo))
             rotulo.setForeground(QColor(COR_SUAVE))
             if a.dica:
-                rotulo.setToolTip(a.dica)
+                rotulo.setToolTip(tr(a.dica))
             self.tabela.setItem(linha, 0, rotulo)
             destaque = melhores(escolhidas, a)
             for i, f in enumerate(escolhidas):

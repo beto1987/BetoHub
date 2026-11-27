@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QFormLayout, QLabel, QLineEdit, QPlainTextEdit, QVBoxLayout,
 )
 
+from beto_hub.core.i18n import tr
 from beto_hub.ui.theme import repolir
 
 from ..logica.comparacao import numero
@@ -17,7 +18,7 @@ from .comum import combo_pesquisavel, preencher_naves
 class DialogoNave(QDialog):
     def __init__(self, fichas: list[FichaNave], nave: NaveHangar | None = None, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Editar nave" if nave else "Adicionar nave ao hangar")
+        self.setWindowTitle(tr("Editar nave") if nave else tr("Adicionar nave ao hangar"))
         self.setMinimumWidth(460)
         self.fichas = {f.uuid: f for f in fichas}
         self.original = nave
@@ -28,9 +29,9 @@ class DialogoNave(QDialog):
         self.combo = QComboBox()
         combo_pesquisavel(self.combo)
         preencher_naves(self.combo, fichas, manter_uuid=nave.uuid if nave else "")
-        self.combo.setToolTip("Digite parte do nome para filtrar.")
+        self.combo.setToolTip(tr("Digite parte do nome para filtrar."))
         self.combo.currentIndexChanged.connect(self._resumo)
-        form.addRow("Nave:", self.combo)
+        form.addRow(tr("Nave:"), self.combo)
 
         self.resumo = QLabel()
         self.resumo.setProperty("papel", "ajuda")
@@ -38,24 +39,24 @@ class DialogoNave(QDialog):
         form.addRow("", self.resumo)
 
         self.apelido = QLineEdit(nave.apelido if nave else "")
-        self.apelido.setPlaceholderText("Opcional. Ex.: \"Carga pesada\"")
-        form.addRow("Apelido:", self.apelido)
+        self.apelido.setPlaceholderText(tr("Opcional. Ex.: \"Carga pesada\""))
+        form.addRow(tr("Apelido:"), self.apelido)
 
         self.origem = QComboBox()
         self.origem.setEditable(True)
-        self.origem.addItems(ORIGENS)
-        self.origem.setCurrentText(nave.origem if nave else ORIGENS[0])
-        form.addRow("Origem:", self.origem)
+        self.origem.addItems([tr(o) for o in ORIGENS])
+        self.origem.setCurrentText(nave.origem if nave else tr(ORIGENS[0]))
+        form.addRow(tr("Origem:"), self.origem)
 
         self.notas = QPlainTextEdit(nave.notas if nave else "")
-        self.notas.setPlaceholderText("Opcional. Ex.: pintura, seguro, onde está guardada…")
+        self.notas.setPlaceholderText(tr("Opcional. Ex.: pintura, seguro, onde está guardada…"))
         self.notas.setFixedHeight(70)
-        form.addRow("Notas:", self.notas)
+        form.addRow(tr("Notas:"), self.notas)
         layout.addLayout(form)
 
         botoes = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        botoes.button(QDialogButtonBox.Ok).setText("Salvar")
-        botoes.button(QDialogButtonBox.Cancel).setText("Cancelar")
+        botoes.button(QDialogButtonBox.Ok).setText(tr("Salvar"))
+        botoes.button(QDialogButtonBox.Cancel).setText(tr("Cancelar"))
         botoes.accepted.connect(self._salvar)
         botoes.rejected.connect(self.reject)
         layout.addWidget(botoes)
@@ -67,7 +68,7 @@ class DialogoNave(QDialog):
     def _resumo(self) -> None:
         f = self._ficha()
         if not f:
-            self.resumo.setText("Escolha uma nave da lista.")
+            self.resumo.setText(tr("Escolha uma nave da lista."))
             return
         partes = [f.fabricante, f.funcao or f.carreira_pt,
                   f"{numero(f.carga_scu)} SCU" if f.carga_scu else "",
@@ -77,7 +78,7 @@ class DialogoNave(QDialog):
     def _salvar(self) -> None:
         f = self._ficha()
         if not f:
-            self.resumo.setText("Escolha uma nave da lista antes de salvar.")
+            self.resumo.setText(tr("Escolha uma nave da lista antes de salvar."))
             self.resumo.setProperty("papel", "erro")
             repolir(self.resumo)
             return

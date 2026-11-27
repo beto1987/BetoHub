@@ -5,6 +5,8 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QPlainTextEdit, QVBoxLayout, QWidget
 
+from beto_hub.core.i18n import tr
+
 
 def _rotulo(texto: str, papel: str | None = None, quebra: bool = True) -> QLabel:
     rotulo = QLabel(texto)
@@ -40,10 +42,10 @@ class PainelErroPlugin(QWidget):
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
-        layout.addWidget(_rotulo(f"O MÓDULO {nome.upper()} NÃO CARREGOU", "erro"))
+        layout.addWidget(_rotulo(tr("O MÓDULO {nome} NÃO CARREGOU", nome=nome.upper()), "erro"))
         layout.addWidget(_rotulo(
-            "O restante do Hub continua funcionando. "
-            f"Detalhes completos no log em:\n{pasta_logs}", "ajuda"
+            tr("O restante do Hub continua funcionando. Detalhes completos no log em:\n{pasta}",
+               pasta=pasta_logs), "ajuda"
         ))
         layout.addWidget(_rotulo(erro))
         if detalhe:

@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
+from beto_hub.core.i18n import tr
 from .. import NOME_APP, __version__
 from ..core import paths
 from ..core.logging_setup import obter_logger
@@ -73,11 +74,11 @@ class JanelaPrincipal(QMainWindow):
         linha.addWidget(versao, 0, Qt.AlignBottom)
         linha.addStretch(1)
 
-        self.botao_overlay = QPushButton("OVERLAY")
+        self.botao_overlay = QPushButton(tr("OVERLAY"))
         self.botao_overlay.setCheckable(True)
-        self.botao_overlay.setToolTip("Mostrar/esconder o overlay")
+        self.botao_overlay.setToolTip(tr("Mostrar/esconder o overlay"))
         self.botao_overlay.clicked.connect(self.hub.alternar_overlay)
-        botao_config = QPushButton("CONFIGURAÇÕES")
+        botao_config = QPushButton(tr("CONFIGURAÇÕES"))
         botao_config.clicked.connect(self.hub.abrir_configuracoes)
         linha.addWidget(self.botao_overlay)
         linha.addWidget(botao_config)
@@ -86,22 +87,22 @@ class JanelaPrincipal(QMainWindow):
     def _criar_menus(self) -> None:
         barra = self.menuBar()
 
-        arquivo = barra.addMenu("&Arquivo")
-        self._acao(arquivo, "Configurações…", self.hub.abrir_configuracoes, QKeySequence("Ctrl+,"))
+        arquivo = barra.addMenu(tr("&Arquivo"))
+        self._acao(arquivo, tr("Configurações…"), self.hub.abrir_configuracoes, QKeySequence("Ctrl+,"))
         arquivo.addSeparator()
-        self._acao(arquivo, "Abrir arquivo de configuração", lambda: self._abrir(paths.arquivo_config()))
-        self._acao(arquivo, "Abrir pasta de dados", lambda: self._abrir(paths.pasta_dados()))
-        self._acao(arquivo, "Abrir pasta de logs", lambda: self._abrir(paths.pasta_logs()))
+        self._acao(arquivo, tr("Abrir arquivo de configuração"), lambda: self._abrir(paths.arquivo_config()))
+        self._acao(arquivo, tr("Abrir pasta de dados"), lambda: self._abrir(paths.pasta_dados()))
+        self._acao(arquivo, tr("Abrir pasta de logs"), lambda: self._abrir(paths.pasta_logs()))
         arquivo.addSeparator()
-        self._acao(arquivo, "Sair", self.hub.sair, QKeySequence("Ctrl+Q"))
+        self._acao(arquivo, tr("Sair"), self.hub.sair, QKeySequence("Ctrl+Q"))
 
-        exibir = barra.addMenu("&Exibir")
-        self._acao(exibir, "Mostrar/esconder overlay", self.hub.alternar_overlay)
-        self.acao_clique = self._acao(exibir, "Overlay: clique atravessa", self.hub.alternar_clique_atravessa)
+        exibir = barra.addMenu(tr("&Exibir"))
+        self._acao(exibir, tr("Mostrar/esconder overlay"), self.hub.alternar_overlay)
+        self.acao_clique = self._acao(exibir, tr("Overlay: clique atravessa"), self.hub.alternar_clique_atravessa)
         self.acao_clique.setCheckable(True)
 
-        ajuda = barra.addMenu("A&juda")
-        self._acao(ajuda, "Sobre", self._sobre)
+        ajuda = barra.addMenu(tr("A&juda"))
+        self._acao(ajuda, tr("Sobre"), self._sobre)
 
     def _acao(self, menu, texto, funcao, atalho: QKeySequence | None = None) -> QAction:
         acao = QAction(texto, self)
@@ -127,11 +128,11 @@ class JanelaPrincipal(QMainWindow):
         carregados = [p for p in self.hub.plugins if p.estado in (OK, ERRO)]
         if not carregados:
             self.abas.addTab(PainelEmConstrucao(
-                "Nenhum módulo", "Nenhum módulo ativo foi encontrado na pasta plugins.",
+                tr("Nenhum módulo"), tr("Nenhum módulo ativo foi encontrado na pasta plugins."),
             ), "HUB")
             return
         for plugin in carregados:
-            indice = self.abas.addTab(self._criar_conteudo(plugin), plugin.nome.upper())
+            indice = self.abas.addTab(self._criar_conteudo(plugin), tr(plugin.nome).upper())
             self._indice_por_id[plugin.id] = indice
 
     def _criar_conteudo(self, plugin) -> QWidget:
@@ -141,22 +142,22 @@ class JanelaPrincipal(QMainWindow):
             except Exception as erro:
                 log.exception("Erro ao criar a aba do módulo %s", plugin.id)
                 import traceback
-                return PainelErroPlugin(plugin.nome, f"{type(erro).__name__}: {erro}",
+                return PainelErroPlugin(tr(plugin.nome), f"{type(erro).__name__}: {erro}",
                                         traceback.format_exc(), str(paths.pasta_logs()))
-        return PainelErroPlugin(plugin.nome, plugin.erro, plugin.detalhe, str(paths.pasta_logs()))
+        return PainelErroPlugin(tr(plugin.nome), plugin.erro, plugin.detalhe, str(paths.pasta_logs()))
 
     # ------------------------------------------------------------ estado
     def atualizar_status(self, overlay_visivel: bool, clique_atravessa: bool,
                          atalho_overlay: str | None, atalho_clique: str | None) -> None:
         self.botao_overlay.setChecked(overlay_visivel)
         self.acao_clique.setChecked(clique_atravessa)
-        estado = "visível" if overlay_visivel else "oculto"
+        estado = tr("visível") if overlay_visivel else tr("oculto")
         if clique_atravessa:
-            estado += " · clique atravessa"
-        self.rotulo_overlay.setText(f"Overlay: {estado}")
-        self.rotulo_atalho.setText(
-            f"Atalhos — overlay: {atalho_overlay or 'desativado'} · clique: {atalho_clique or 'desativado'}"
-        )
+            estado += " · " + tr("clique atravessa")
+        self.rotulo_overlay.setText(tr("Overlay: {estado}", estado=estado))
+        self.rotulo_atalho.setText(tr(
+            "Atalhos — overlay: {overlay} · clique: {clique}",
+            overlay=atalho_overlay or tr("desativado"), clique=atalho_clique or tr("desativado")))
 
     def mensagem(self, texto: str, ms: int = 5000) -> None:
         self.statusBar().showMessage(texto, ms)
@@ -168,12 +169,12 @@ class JanelaPrincipal(QMainWindow):
 
     def _sobre(self) -> None:
         QMessageBox.about(
-            self, f"Sobre o {NOME_APP}",
+            self, tr("Sobre o {app}", app=NOME_APP),
             f"<b>{NOME_APP}</b> v{__version__}<br><br>"
-            "App de apoio ao Star Citizen.<br>"
-            "Só lê a tela e APIs da comunidade (UEX Corp). Não modifica arquivos "
-            "do jogo nem injeta código.<br><br>"
-            "Star Citizen é marca da Cloud Imperium Games. Projeto de fã, sem vínculo oficial.",
+            + tr("App de apoio ao Star Citizen.") + "<br>"
+            + tr("Só lê a tela, o Game.log e APIs da comunidade (UEX Corp, Star Citizen Wiki). "
+                 "Não modifica arquivos do jogo nem injeta código.") + "<br><br>"
+            + tr("Star Citizen é marca da Cloud Imperium Games. Projeto de fã, sem vínculo oficial."),
         )
 
     # ------------------------------------------------------------ geometria
@@ -205,7 +206,7 @@ class JanelaPrincipal(QMainWindow):
         if self.hub.config.obter("geral.fechar_para_bandeja", False) and self.hub.bandeja_disponivel():
             evento.ignore()
             self.hide()
-            self.hub.notificar(NOME_APP, "O Hub continua rodando na bandeja.")
+            self.hub.notificar(NOME_APP, tr("O Hub continua rodando na bandeja."))
             return
         evento.ignore()  # o HubApp encerra tudo na ordem certa
         self.hub.sair()

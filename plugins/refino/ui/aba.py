@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core import i18n
+from beto_hub.core.i18n import N_, tr
 from beto_hub.ui.theme import repolir
 
 from ..logica.estimativas import formatar_minutos
@@ -21,7 +23,8 @@ from .dialogo_pedido import DialogoPedido, _n
 if TYPE_CHECKING:
     from ..controlador import ControladorRefino
 
-COLUNAS = ["Status", "Refinaria", "Minérios", "Método", "Pronto às", "Falta", "Custo", "Lucro estimado", "Notas"]
+COLUNAS = [N_("Status"), N_("Refinaria"), N_("Minérios"), N_("Método"), N_("Pronto às"), N_("Falta"), N_("Custo"),
+           N_("Lucro estimado"), N_("Notas")]
 CORES = {ANDAMENTO: "#35c8f5", PRONTO: "#4cd98a", RETIRADO: "#7f98ad"}
 
 
@@ -43,11 +46,11 @@ class AbaRefino(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
 
         topo = QHBoxLayout()
-        novo = QPushButton("+ NOVO PEDIDO DE REFINO")
+        novo = QPushButton(tr("+ NOVO PEDIDO DE REFINO"))
         novo.setProperty("destaque", "true")
         novo.clicked.connect(lambda: abrir_novo_pedido(self.c, self))
         topo.addWidget(novo)
-        atualizar = QPushButton("Atualizar dados da UEX")
+        atualizar = QPushButton(tr("Atualizar dados da UEX"))
         atualizar.clicked.connect(lambda: self.c.carregar_dados(forcar=True))
         topo.addWidget(atualizar)
         self.rotulo_status = QLabel()
@@ -56,7 +59,7 @@ class AbaRefino(QWidget):
         layout.addLayout(topo)
 
         self.tabela = QTableWidget(0, len(COLUNAS))
-        self.tabela.setHorizontalHeaderLabels(COLUNAS)
+        self.tabela.setHorizontalHeaderLabels([tr(c) for c in COLUNAS])
         self.tabela.verticalHeader().setVisible(False)
         self.tabela.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tabela.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -69,15 +72,15 @@ class AbaRefino(QWidget):
         layout.addWidget(self.tabela, 1)
 
         baixo = QHBoxLayout()
-        self.mostrar_retirados = QCheckBox("Mostrar retirados")
+        self.mostrar_retirados = QCheckBox(tr("Mostrar retirados"))
         self.mostrar_retirados.toggled.connect(self.recarregar)
         baixo.addWidget(self.mostrar_retirados)
-        dica = QLabel("Quando o refino ficar pronto, o Windows avisa com som e balão — mesmo com o jogo em tela.")
+        dica = QLabel(tr("Quando o refino ficar pronto, o Windows avisa com som e balão — mesmo com o jogo em tela."))
         dica.setProperty("papel", "ajuda")
         baixo.addWidget(dica, 1)
-        self.botao_retirar = QPushButton("Retirado / vendido → Log do Capitão")
+        self.botao_retirar = QPushButton(tr("Retirado / vendido → Log do Capitão"))
         self.botao_retirar.clicked.connect(self._retirar)
-        self.botao_excluir = QPushButton("Excluir")
+        self.botao_excluir = QPushButton(tr("Excluir"))
         self.botao_excluir.setProperty("perigo", "true")
         self.botao_excluir.clicked.connect(self._excluir)
         baixo.addWidget(self.botao_retirar)
@@ -100,9 +103,9 @@ class AbaRefino(QWidget):
         self._pedidos = self.c.pedidos(self.mostrar_retirados.isChecked())
         self.tabela.setRowCount(len(self._pedidos))
         for linha, p in enumerate(self._pedidos):
-            fim = time.strftime("%d/%m %H:%M", time.localtime(p.fim))
+            fim = i18n.data_curta(p.fim)
             lucro = p.lucro_estimado
-            valores = [NOMES_STATUS.get(p.status, p.status), p.refinaria, p.descricao_itens, p.metodo or "—",
+            valores = [tr(NOMES_STATUS.get(p.status, p.status)), p.refinaria, p.descricao_itens, p.metodo or "—",
                        fim, "", _n(p.custo), _n(lucro), p.notas]
             for col, texto in enumerate(valores):
                 item = QTableWidgetItem(texto)
@@ -112,7 +115,7 @@ class AbaRefino(QWidget):
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 if col == 7 and lucro is not None:
                     item.setForeground(QColor("#4cd98a" if lucro >= 0 else "#ff5c5c"))
-                    item.setToolTip("Valor estimado do refinado menos o custo do refino.")
+                    item.setToolTip(tr("Valor estimado do refinado menos o custo do refino."))
                 self.tabela.setItem(linha, col, item)
         self._atualizar_contagem()
         if selecionado:
@@ -129,7 +132,7 @@ class AbaRefino(QWidget):
                 restante = p.restante_s(agora)
                 texto = formatar_minutos(restante / 60) if restante >= 60 else f"{int(restante)} s"
             else:
-                texto = "—" if p.status == RETIRADO else "pronto!"
+                texto = "—" if p.status == RETIRADO else tr("pronto!")
             item = self.tabela.item(linha, col)
             if item:
                 item.setText(texto)
@@ -153,14 +156,16 @@ class AbaRefino(QWidget):
         p = self._selecionado()
         if not p:
             return
-        aviso = "" if p.status == PRONTO else "\n\nAtenção: pelo relógio do Hub este pedido ainda não ficou pronto."
-        if QMessageBox.question(self, "Refino", f"Marcar \"{p.descricao_itens}\" em {p.refinaria} como retirado "
-                                f"e registrar no Log do Capitão?{aviso}") == QMessageBox.Yes:
+        aviso = "" if p.status == PRONTO else "\n\n" + tr("Atenção: pelo relógio do Hub este pedido ainda não ficou pronto.")
+        if QMessageBox.question(self, tr("Refino"), tr(
+                "Marcar \"{itens}\" em {refinaria} como retirado e registrar no Log do Capitão?",
+                itens=p.descricao_itens, refinaria=p.refinaria) + aviso) == QMessageBox.Yes:
             self.c.retirar(p)
 
     def _excluir(self) -> None:
         p = self._selecionado()
-        if p and QMessageBox.question(self, "Refino", f"Excluir o pedido \"{p.descricao_itens}\" em {p.refinaria}?\n"
-                                      "Essa ação não pode ser desfeita.",
+        if p and QMessageBox.question(self, tr("Refino"), tr(
+                "Excluir o pedido \"{itens}\" em {refinaria}?\nEssa ação não pode ser desfeita.",
+                itens=p.descricao_itens, refinaria=p.refinaria),
                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             self.c.excluir(p)

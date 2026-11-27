@@ -5,9 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from beto_hub.core.i18n import N_
 from beto_hub.core.database import BancoDados
 
-ORIGENS = ("Comprada no jogo", "Pledge", "Pledge (seguro vitalício)", "Emprestada (loaner)", "Alugada", "Outra")
+ORIGENS = (N_("Comprada no jogo"), N_("Pledge"), N_("Pledge (seguro vitalício)"), N_("Emprestada (loaner)"),
+           N_("Alugada"), N_("Outra"))
 
 MIGRACOES = [
     """

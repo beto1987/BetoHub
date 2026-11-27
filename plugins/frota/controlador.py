@@ -13,6 +13,7 @@ from typing import Any
 
 from PySide6.QtCore import QObject, Signal
 
+from beto_hub.core.i18n import tr
 from beto_hub.core.plugin_base import HubContext
 
 from .logica.hangar import NaveHangar, RepositorioHangar
@@ -33,7 +34,7 @@ class ControladorFrota(QObject):
         self.repo = RepositorioHangar(ctx.banco)
         self.fichas: list[FichaNave] = []
         self._por_uuid: dict[str, FichaNave] = {}
-        self.ultimo_status = ("Carregando dados das naves da Star Citizen Wiki…", "ajuda")
+        self.ultimo_status = (tr("Carregando dados das naves da Star Citizen Wiki…"), "ajuda")
         self._carregando = False
         self.carregar_dados()
 
@@ -43,7 +44,7 @@ class ControladorFrota(QObject):
         if wiki is None or self._carregando:
             return
         self._carregando = True
-        self._emitir_status("Carregando dados das naves da Star Citizen Wiki…", "ajuda")
+        self._emitir_status(tr("Carregando dados das naves da Star Citizen Wiki…"), "ajuda")
         self.ctx.workers.executar(self._baixar, wiki, forcar, ao_concluir=self._ao_baixar, ao_falhar=self._ao_falhar)
 
     @staticmethod
@@ -58,7 +59,7 @@ class ControladorFrota(QObject):
         self._por_uuid = {f.uuid: f for f in self.fichas}
         versao = next((f.versao for f in self.fichas if f.versao), "")
         self.log.info("Frota: %d naves da Wiki (versão do jogo %s)", len(self.fichas), versao or "?")
-        texto = f"{len(self.fichas)} naves · dados do jogo {versao or '?'} (Star Citizen Wiki)"
+        texto = tr("{n} naves · dados do jogo {versao} (Star Citizen Wiki)", n=len(self.fichas), versao=versao or "?")
         if resultado.aviso:
             self._emitir_status(f"{resultado.aviso} {texto}", "alerta")
         else:
@@ -67,7 +68,7 @@ class ControladorFrota(QObject):
 
     def _ao_falhar(self, erro: Exception) -> None:
         self._carregando = False
-        self._emitir_status(f"Dados das naves indisponíveis: {erro}", "erro")
+        self._emitir_status(tr("Dados das naves indisponíveis: {erro}", erro=erro), "erro")
 
     def _emitir_status(self, texto: str, papel: str) -> None:
         self.ultimo_status = (texto, papel)

@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
 )
 
+from beto_hub.core.i18n import N_, tr
 from beto_hub.ui.theme import repolir
 
 from ..logica.comparacao import numero
@@ -23,7 +24,7 @@ from .ficha import FichaWidget
 if TYPE_CHECKING:
     from ..controlador import ControladorFrota
 
-COLUNAS = ["", "Nave", "Apelido", "Função", "Carga", "DPS", "Escudo", "Origem"]
+COLUNAS = ["", N_("Nave"), N_("Apelido"), N_("Função"), N_("Carga"), "DPS", N_("Escudo"), N_("Origem")]
 ESTRELA = "★"
 
 
@@ -39,16 +40,16 @@ class AbaFrota(QWidget):
         self.rotulo_status = QLabel()
         self.rotulo_status.setWordWrap(True)
         topo.addWidget(self.rotulo_status, 1)
-        atualizar = QPushButton("Atualizar dados das naves")
-        atualizar.setToolTip("Baixa de novo as estatísticas da Star Citizen Wiki (normalmente 1x por dia).")
+        atualizar = QPushButton(tr("Atualizar dados das naves"))
+        atualizar.setToolTip(tr("Baixa de novo as estatísticas da Star Citizen Wiki (normalmente 1x por dia)."))
         atualizar.clicked.connect(lambda: self.c.carregar_dados(forcar=True))
         topo.addWidget(atualizar)
         layout.addLayout(topo)
 
         self.abas = QTabWidget()
-        self.abas.addTab(self._montar_hangar(), "HANGAR")
+        self.abas.addTab(self._montar_hangar(), tr("HANGAR"))
         self.comparador = Comparador()
-        self.abas.addTab(self.comparador, "COMPARADOR")
+        self.abas.addTab(self.comparador, tr("COMPARADOR"))
         layout.addWidget(self.abas, 1)
 
         c.status.connect(self._ao_status)
@@ -65,23 +66,23 @@ class AbaFrota(QWidget):
         v = QVBoxLayout(esquerda)
         v.setContentsMargins(0, 6, 6, 0)
         botoes = QHBoxLayout()
-        self.botao_adicionar = QPushButton("+ ADICIONAR NAVE")
+        self.botao_adicionar = QPushButton(tr("+ ADICIONAR NAVE"))
         self.botao_adicionar.setProperty("destaque", "true")
         self.botao_adicionar.clicked.connect(self._adicionar)
         botoes.addWidget(self.botao_adicionar)
-        self.botao_ativa = QPushButton(f"{ESTRELA} Usar como nave ativa")
-        self.botao_ativa.setToolTip("A nave ativa já vem selecionada no Comércio (carga) e na Mineração.")
+        self.botao_ativa = QPushButton(f"{ESTRELA} " + tr("Usar como nave ativa"))
+        self.botao_ativa.setToolTip(tr("A nave ativa já vem selecionada no Comércio (carga) e na Mineração."))
         self.botao_ativa.clicked.connect(self._definir_ativa)
         botoes.addWidget(self.botao_ativa)
-        self.botao_comparar = QPushButton("Comparar selecionadas")
-        self.botao_comparar.setToolTip(f"Selecione de 2 a {MAX_NAVES} naves (Ctrl+clique) e compare lado a lado.")
+        self.botao_comparar = QPushButton(tr("Comparar selecionadas"))
+        self.botao_comparar.setToolTip(tr("Selecione de 2 a {n} naves (Ctrl+clique) e compare lado a lado.", n=MAX_NAVES))
         self.botao_comparar.clicked.connect(self._comparar)
         botoes.addWidget(self.botao_comparar)
         botoes.addStretch(1)
         v.addLayout(botoes)
 
         self.tabela = QTableWidget(0, len(COLUNAS))
-        self.tabela.setHorizontalHeaderLabels(COLUNAS)
+        self.tabela.setHorizontalHeaderLabels([tr(c) if c else c for c in COLUNAS])
         self.tabela.verticalHeader().setVisible(False)
         self.tabela.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tabela.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -94,18 +95,18 @@ class AbaFrota(QWidget):
         self.tabela.itemDoubleClicked.connect(lambda *_: self._editar())
         v.addWidget(self.tabela, 1)
 
-        self.vazio = QLabel("Seu hangar está vazio. Clique em \"+ ADICIONAR NAVE\" para cadastrar as naves que você tem.")
+        self.vazio = QLabel(tr("Seu hangar está vazio. Clique em \"+ ADICIONAR NAVE\" para cadastrar as naves que você tem."))
         self.vazio.setProperty("papel", "ajuda")
         self.vazio.setWordWrap(True)
         v.addWidget(self.vazio)
 
         baixo = QHBoxLayout()
-        dica = QLabel(f"{ESTRELA} = nave ativa · duplo clique para editar")
+        dica = QLabel(f"{ESTRELA} = " + tr("nave ativa · duplo clique para editar"))
         dica.setProperty("papel", "ajuda")
         baixo.addWidget(dica, 1)
-        self.botao_editar = QPushButton("Editar")
+        self.botao_editar = QPushButton(tr("Editar"))
         self.botao_editar.clicked.connect(self._editar)
-        self.botao_remover = QPushButton("Remover")
+        self.botao_remover = QPushButton(tr("Remover"))
         self.botao_remover.setProperty("perigo", "true")
         self.botao_remover.clicked.connect(self._remover)
         baixo.addWidget(self.botao_editar)
@@ -143,7 +144,7 @@ class AbaFrota(QWidget):
                 numero(f.carga_scu) if f and f.carga_scu else "—",
                 numero(f.dps_total) if f and f.dps_total else "—",
                 numero(f.escudo_hp) if f and f.escudo_hp else "—",
-                n.origem,
+                tr(n.origem),
             ]
             for col, texto in enumerate(valores):
                 item = QTableWidgetItem(texto)
@@ -153,7 +154,7 @@ class AbaFrota(QWidget):
                 if col in (4, 5, 6):
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 if col == 1 and f is None and self.c.fichas:
-                    item.setToolTip("Nave não encontrada nos dados atuais da Star Citizen Wiki.")
+                    item.setToolTip(tr("Nave não encontrada nos dados atuais da Star Citizen Wiki."))
                 self.tabela.setItem(linha, col, item)
         self.vazio.setVisible(not self._naves)
         self.tabela.clearSelection()
@@ -200,7 +201,7 @@ class AbaFrota(QWidget):
         if len(sel) != 1:
             return
         n = sel[0]
-        if QMessageBox.question(self, "Frota", f"Remover \"{n.rotulo}\" do hangar?",
+        if QMessageBox.question(self, tr("Frota"), tr("Remover \"{nave}\" do hangar?", nave=n.rotulo),
                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             self.c.excluir(n)
 

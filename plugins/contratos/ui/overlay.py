@@ -7,6 +7,7 @@ import html
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
 
+from beto_hub.core.i18n import tr
 from ..controlador import ControladorContratos
 from .comum import COR_SUAVE, duracao
 from .detalhe import html_objetivos
@@ -44,18 +45,18 @@ class PainelOverlayContratos(QWidget):
         if len(trechos) == len(rota.trechos):
             return rota
         return Rota(trechos, exata=rota.exata, total_valido=False,
-                    avisos=["Contratos encerrados saíram da rota; recalcule na aba Contratos."] if trechos else [])
+                    avisos=[tr("Contratos encerrados saíram da rota; recalcule na aba Contratos.")] if trechos else [])
 
     def atualizar(self, *_a) -> None:
         ativos = self.c.ativos()
         if not ativos:
-            self.texto.setText(f"<span style='color:{COR_SUAVE}'>Nenhum contrato ativo. Aceite um no jogo e ele "
-                               "aparece aqui em poucos segundos.</span>")
+            self.texto.setText(f"<span style='color:{COR_SUAVE}'>" + tr("Nenhum contrato ativo. Aceite um no jogo e ele "
+                               "aparece aqui em poucos segundos.") + "</span>")
             return
         blocos = []
         rota = self._rota_pendente({c.missao for c in ativos})
         if rota and rota.trechos:
-            blocos.append("<div style='color:#4cd98a; font-weight:600;'>ROTA DE ENTREGAS</div>"
+            blocos.append(f"<div style='color:#4cd98a; font-weight:600;'>{tr('ROTA DE ENTREGAS')}</div>"
                           f"<div style='margin-bottom:10px;'>{html_rota(rota, compacto=True)}</div>")
         for c in ativos[:8]:
             feitos, total = c.progresso
@@ -63,6 +64,6 @@ class PainelOverlayContratos(QWidget):
             blocos.append(
                 f"<div style='margin-bottom:8px;'>"
                 f"<div style='color:#35c8f5; font-weight:600;'>{html.escape(c.rotulo)}</div>"
-                f"<div style='color:{COR_SUAVE}; font-size:8pt;'>{c.tipo}{progresso} · há {duracao(c.duracao_s)}</div>"
+                f"<div style='color:{COR_SUAVE}; font-size:8pt;'>{tr(c.tipo)}{progresso} · {tr('há {tempo}', tempo=duracao(c.duracao_s))}</div>"
                 f"{html_objetivos(c, limite=6)}</div>")
         self.texto.setText("".join(blocos))

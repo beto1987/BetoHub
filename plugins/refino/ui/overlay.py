@@ -8,6 +8,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
+from beto_hub.core.i18n import tr
 from ..controlador import ControladorRefino
 from ..logica.pedidos import PRONTO
 from .aba import abrir_novo_pedido
@@ -20,15 +21,15 @@ class PainelOverlayRefino(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 6)
 
-        botao = QPushButton("+ NOVO PEDIDO DE REFINO")
+        botao = QPushButton(tr("+ NOVO PEDIDO DE REFINO"))
         botao.setProperty("destaque", "true")
         botao.setCursor(Qt.PointingHandCursor)
         botao.setFocusPolicy(Qt.NoFocus)
         botao.clicked.connect(lambda: abrir_novo_pedido(self.c, None))
         layout.addWidget(botao)
 
-        dica = QLabel("Abre uma janelinha por cima do jogo para registrar o pedido logo depois de "
-                      "iniciá-lo no terminal de refino.")
+        dica = QLabel(tr("Abre uma janelinha por cima do jogo para registrar o pedido logo depois de "
+                         "iniciá-lo no terminal de refino."))
         dica.setWordWrap(True)
         dica.setProperty("papel", "ajuda")
         layout.addWidget(dica)
@@ -47,7 +48,7 @@ class PainelOverlayRefino(QWidget):
         if not prontos:
             self.prontos.setText("")
             return
-        linhas = [f"<div style='color:#4cd98a; font-weight:600;'>✔ PRONTO PARA RETIRAR</div>"]
+        linhas = [f"<div style='color:#4cd98a; font-weight:600;'>✔ {tr('PRONTO PARA RETIRAR')}</div>"]
         for p in prontos[:6]:
             nomes = ", ".join(i.get("nome", "?") for i in p.itens)
             linhas.append(f"<div style='color:#d6e6f2;'>▸ {nomes} <span style='color:#7f98ad'>· {p.refinaria}</span></div>")

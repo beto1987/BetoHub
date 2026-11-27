@@ -16,6 +16,7 @@ from typing import Any
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
+from beto_hub.core.i18n import tr
 from beto_hub.core.plugin_base import HubContext
 
 from .logica.arquivos import LeitorGameLog, backups, detectar_pasta, ler_linhas
@@ -41,7 +42,7 @@ class ControladorContratos(QObject):
         self.ctx = ctx
         self.log = ctx.log
         self.repo = RepositorioContratos(ctx.banco)
-        self.ultimo_status = ("Procurando o Game.log do Star Citizen…", "ajuda")
+        self.ultimo_status = (tr("Procurando o Game.log do Star Citizen…"), "ajuda")
         self._ocupado = False
         self._ciclos = 0
         self._ultima_leitura: float | None = None
@@ -69,15 +70,15 @@ class ControladorContratos(QObject):
         """(Re)inicia a leitura conforme as opções. Chamado no início e ao aplicar as Configurações."""
         self._timer.stop()
         if not self.opcao("ler_log"):
-            self._emitir_status("Leitura do Game.log desligada (Configurações › Contratos).", "alerta")
+            self._emitir_status(tr("Leitura do Game.log desligada (Configurações › Contratos)."), "alerta")
             return
         pasta = self.pasta
         if pasta is None or not pasta.is_dir():
-            self._emitir_status("Pasta do Star Citizen não encontrada. Informe-a em Configurações › Contratos.", "erro")
+            self._emitir_status(tr("Pasta do Star Citizen não encontrada. Informe-a em Configurações › Contratos."), "erro")
             return
         self.leitor = LeitorGameLog(pasta, self.repo.estado, self.repo.definir_estado)
         self._ciclos = 0
-        self._emitir_status(f"Lendo {pasta}…", "ajuda")
+        self._emitir_status(tr("Lendo {pasta}…", pasta=pasta), "ajuda")
         self._executar(self._inicial, pasta)
         self._timer.start()
 
@@ -134,14 +135,16 @@ class ControladorContratos(QObject):
         if r.get("recuperados"):
             self.log.info("Contratos: %d log(s) de sessões anteriores lidos", r["recuperados"])
         if "importados" in r:
-            self._emitir_status(f"Histórico importado: {r['importados']} logs, {r['contratos']} contratos no total.", "ok")
+            self._emitir_status(tr("Histórico importado: {logs} logs, {contratos} contratos no total.",
+                                   logs=r["importados"], contratos=r["contratos"]), "ok")
             self._status_fixo_ate = time.time() + 15  # deixa a mensagem visível por um tempo
         elif time.time() < getattr(self, "_status_fixo_ate", 0):
             pass
         elif not r.get("existe", True):
-            self._emitir_status(f"Esperando o jogo criar {self.leitor.arquivo}.", "alerta")
+            self._emitir_status(tr("Esperando o jogo criar {arquivo}.", arquivo=self.leitor.arquivo), "alerta")
         else:
-            self._emitir_status(f"Lendo o Game.log em {self.leitor.pasta} · {len(self.repo.ativos())} contrato(s) ativo(s)",
+            self._emitir_status(tr("Lendo o Game.log em {pasta} · {n} contrato(s) ativo(s)", pasta=self.leitor.pasta,
+                                   n=len(self.repo.ativos())),
                                 "ok")
         self._avisar(r.get("encerradas") or [])
         if r.get("mudou"):
@@ -149,7 +152,7 @@ class ControladorContratos(QObject):
 
     def _ao_falhar(self, erro: Exception) -> None:
         self._ocupado = False
-        self._emitir_status(f"Erro ao ler o Game.log: {erro}", "erro")
+        self._emitir_status(tr("Erro ao ler o Game.log: {erro}", erro=erro), "erro")
 
     def _avisar(self, missoes: list[str]) -> None:
         agora = time.time()
@@ -157,8 +160,8 @@ class ControladorContratos(QObject):
             c = self.repo.obter(missao)
             if not c or not c.encerrado_em or agora - c.encerrado_em > AVISAR_SE_MAIS_NOVO_QUE_S:
                 continue
-            titulo = "Contrato concluído" if c.status == CONCLUIDO else f"Contrato: {NOMES_STATUS.get(c.status, c.status)}"
-            extra = " Informe a recompensa na aba Contratos." if c.status == CONCLUIDO else ""
+            titulo = tr("Contrato concluído") if c.status == CONCLUIDO else tr("Contrato: {status}", status=tr(NOMES_STATUS.get(c.status, c.status)))
+            extra = " " + tr("Informe a recompensa na aba Contratos.") if c.status == CONCLUIDO else ""
             self.ctx.notificar(titulo, c.rotulo + extra)
 
     def _emitir_status(self, texto: str, papel: str) -> None:
@@ -170,7 +173,7 @@ class ControladorContratos(QObject):
         """Lê todos os logs antigos (pode levar alguns segundos). False se já há uma leitura em andamento."""
         if self._ocupado or not hasattr(self, "leitor"):
             return False
-        self._emitir_status("Importando o histórico dos logs antigos…", "ajuda")
+        self._emitir_status(tr("Importando o histórico dos logs antigos…"), "ajuda")
         self._executar(self._importar, self.leitor.pasta)
         return True
 

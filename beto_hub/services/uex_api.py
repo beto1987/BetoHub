@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
+from beto_hub.core.i18n import tr
 from ..core.logging_setup import obter_logger
 from .api_cache import CacheAPI, EntradaCache
 from .http_client import ClienteHTTP, ErroHTTP
@@ -69,16 +70,16 @@ class ClienteUEX:
                 # 404 / sem conexão neste endereço: tenta o próximo endereço conhecido
                 continue
             if not isinstance(resposta, dict):
-                raise ErroUEX(f"Resposta inesperada da UEX em {recurso}.")
+                raise ErroUEX(tr("Resposta inesperada da UEX em {recurso}.", recurso=recurso))
             status = resposta.get("status")
             if status != "ok":
-                msg = resposta.get("message") or status or "erro desconhecido"
+                msg = resposta.get("message") or status or tr("erro desconhecido")
                 if status == "requests_limit_reached":
-                    raise ErroUEX("Limite de requisições da UEX atingido. Tente de novo em 1 minuto.")
-                raise ErroUEX(f"UEX recusou {recurso}: {msg}")
+                    raise ErroUEX(tr("Limite de requisições da UEX atingido. Tente de novo em 1 minuto."))
+                raise ErroUEX(tr("UEX recusou {recurso}: {mensagem}", recurso=recurso, mensagem=msg))
             self._url_boa = base
             return resposta.get("data")
-        raise ErroUEX(f"Não foi possível falar com a UEX: {ultimo}")
+        raise ErroUEX(tr("Não foi possível falar com a UEX: {erro}", erro=ultimo))
 
     def _com_cache(self, chave: str, ttl: float, forcar: bool, baixar: Callable[[], Any]) -> ResultadoAPI:
         entrada: EntradaCache | None = self.cache.ler(chave)
@@ -90,7 +91,7 @@ class ClienteUEX:
             if entrada:
                 log.warning("Usando cache antigo de %s (%.0f min): %s", chave, entrada.idade_s / 60, erro)
                 return ResultadoAPI(entrada.dados, entrada.obtido_em, do_cache=True, desatualizado=True,
-                                    aviso=f"UEX indisponível ({erro}). Mostrando dados salvos.")
+                                    aviso=tr("UEX indisponível ({erro}). Mostrando dados salvos.", erro=erro))
             raise ErroUEX(str(erro)) from erro
         nova = self.cache.gravar(chave, dados)
         log.info("UEX: %s atualizado (%d itens)", chave, len(dados) if hasattr(dados, "__len__") else 1)

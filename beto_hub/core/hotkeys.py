@@ -24,6 +24,7 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
+from beto_hub.core.i18n import tr
 from . import keymap
 from .logging_setup import obter_logger
 
@@ -92,13 +93,13 @@ class GerenciadorAtalhos(QObject):
         except ValueError as erro:
             return False, str(erro)
         if not EH_WINDOWS:
-            return False, "Atalhos globais só funcionam no Windows."
+            return False, tr("Atalhos globais só funcionam no Windows.")
 
         # Já pressionada no momento do registro? Espera soltar antes de disparar.
         self._registros[nome] = _Registro(atalho, ativo_antes=self._combinacao_ativa(atalho))
         self._atualizar_timer()
         log.info("Atalho '%s' ativo: %s", nome, atalho.texto)
-        return True, f"Atalho {atalho.texto} ativo (funciona também com o jogo em foco)."
+        return True, tr("Atalho {atalho} ativo (funciona também com o jogo em foco).", atalho=atalho.texto)
 
     def remover(self, nome: str) -> None:
         if self._registros.pop(nome, None):
